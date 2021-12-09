@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/insta_cleaner_navigatioon"
+    app:startDestination="@id/homeFragment2">
+
+    <fragment
+        android:id="@+id/homeFragment2"
+        android:name="com.example.instacleaner.ui.fragments.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment2_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.instacleaner.ui.fragments.LoginFragment"
+        android:label="LoginFragment" />
+    <fragment
+        android:id="@+id/favoriteFragment"
+        android:name="com.example.instacleaner.ui.fragments.FavoriteFragment"
+        android:label="FavoriteFragment" />
+    <fragment
+        android:id="@+id/followFragment2"
+        android:name="com.example.instacleaner.ui.fragments.FollowFragment"
+        android:label="FollowFragment" />
+    <fragment
+        android:id="@+id/moreFragment2"
+        android:name="com.example.instacleaner.ui.fragments.MoreFragment"
+        android:label="MoreFragment" />
+</navigation>

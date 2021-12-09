@@ -1,0 +1,3 @@
+package com.example.mohamadkh_instacleaner.data.remote.response.userInfo
+
+class CommerceOnboardingConfig
