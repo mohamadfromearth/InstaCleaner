@@ -11,7 +11,7 @@ import com.example.instacleaner.R
 import com.example.instacleaner.data.local.Account
 import com.example.instacleaner.databinding.RowAccountBinding
 
-class AccountAdapter(private val onAccountClick:(position:Int,account:Account)->Unit):RecyclerView.Adapter<AccountAdapter.AccountViewHolder>() {
+class AccountAdapter(private val onAccountClick:(position:Int,account:Account?,isLastIndex:Boolean)->Unit):RecyclerView.Adapter<AccountAdapter.AccountViewHolder>() {
 
     private val differCallback = object : DiffUtil.ItemCallback<Account>() {
          override fun areContentsTheSame(oldItem: Account, newItem: Account) = oldItem.userId == newItem.userId
@@ -21,11 +21,15 @@ class AccountAdapter(private val onAccountClick:(position:Int,account:Account)->
      }
 
     inner class AccountViewHolder(private val binding:RowAccountBinding):RecyclerView.ViewHolder(binding.root){
-        fun bind(account:Account){
+        fun bind(account:Account?,isLastIndex:Boolean){
             binding.apply {
-               setAccount(account)
-               root.setOnClickListener {
-                   onAccountClick(adapterPosition,account)
+                if(!isLastIndex)
+                    setAccount(account)
+                else
+                    ivProfile.setImageResource(R.drawable.ic_add)
+
+                root.setOnClickListener {
+                   onAccountClick(adapterPosition,account,isLastIndex)
                }
             }
         }
@@ -39,16 +43,18 @@ class AccountAdapter(private val onAccountClick:(position:Int,account:Account)->
     ))
 
     override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-        holder.bind(differ.currentList[position])
+        val isLastIndex = position == differ.currentList.size
+        val account = if (!isLastIndex) differ.currentList[position] else null
+        holder.bind(account,isLastIndex)
     }
 
-    override fun getItemCount() = differ.currentList.size
+    override fun getItemCount() = differ.currentList.size + 1
 
 
     private  val differ = AsyncListDiffer(this,differCallback)
 
-    fun submitList(account:List<Account>){
-        differ.submitList(account)
+    fun submitList(accounts:ArrayList<Account>){
+        differ.submitList(accounts)
     }
 
 

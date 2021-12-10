@@ -19,7 +19,7 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
     private fun isAccountExists(account:Account):Boolean{
         accounts?.let { accounts ->
             accounts.forEach{
-                if (account.cookie == it.cookie) return true
+                if (account.userId == it.userId) return true
             }
         }
 
@@ -38,9 +38,10 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
 
 
     }
-     fun updateAccount(user: User,callback:(accounts:ArrayList<Account>)->Unit){
+     fun updateAccount(user: User,account:Account,callback:(accounts:ArrayList<Account>)->Unit){
          accounts?.let {  accounts ->
-             accounts.find { it.userId == user.pk }?.user = user
+              accounts.first { it.userId == user.pk }.user = user
+              prefManager.set(CURRENT_ACCOUNT,account.userId)
              updateAccountHelper(accounts)
              callback(accounts)
          }

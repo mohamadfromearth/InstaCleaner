@@ -53,8 +53,8 @@ class HomeFragment:Fragment(R.layout.fragment_home) {
 
 
     private fun setUpRecyclerView(){
-        accountAdapter = AccountAdapter(){ position, account ->
-
+        accountAdapter = AccountAdapter(){ position, account,isLastIndex ->
+          viewModel.onAccountClickListener(account,position,isLastIndex)
         }
         binding.rvAccount.adapter =   accountAdapter
     }

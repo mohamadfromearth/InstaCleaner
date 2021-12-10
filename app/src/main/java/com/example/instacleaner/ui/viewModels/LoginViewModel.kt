@@ -42,11 +42,13 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
                    cookie.contains("sessionid=") -> {
                        val userId = extractCookie(cookie, "sessionid=")
                        accountManager.saveAccount(Account(userId.toLong(),cookie))
+                       clearCookies()
                        navToHome.value = true
                    }
                    cookie.contains("db_user_id") -> {
                        val userId = extractCookie(cookie, "ds_user_id=")
                        accountManager.saveAccount(Account(userId.toLong(),cookie))
+                       clearCookies()
                        navToHome.value = true
                    }
                    else -> invalidCookie.value = "Invalid cookie"
@@ -56,6 +58,12 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
        }
 
    }
+
+    private fun clearCookies() {
+        CookieManager.getInstance().removeAllCookies(null)
+        CookieManager.getInstance().flush()
+
+    }
 
 
 
