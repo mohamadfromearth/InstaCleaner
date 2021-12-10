@@ -1,5 +1,7 @@
 package com.example.instacleaner.utils
 
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import retrofit2.Response
 
 
@@ -21,4 +23,9 @@ fun<T> handleResponse( response: Response<T>):Resource<T> {
     val startPosition = cookie.indexOf(cookieValue) + cookieValue.length
     val endPosition = cookie.indexOf("%", startPosition)
     return cookie.substring(startPosition, endPosition)
+}
+
+
+fun Fragment.showToast(message:String){
+    Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show()
 }

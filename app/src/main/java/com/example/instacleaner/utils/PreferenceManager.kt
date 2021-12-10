@@ -14,14 +14,10 @@ class PreferenceManager(private val preference : SharedPreferences){
 
     }
 
-    fun getString(key : String) : String?{
-        return preference.getString(key,null)
-    }
-    fun getBoolean(key: String):Boolean{
-        return preference.getBoolean(key,false)
-    }
-    fun apply(){
-        preference.edit().apply()
-    }
+    fun getString(key : String) = preference.getString(key,null)
+
+    fun getBoolean(key: String) = preference.getBoolean(key,false)
+
+    fun getLong(key:String) = preference.getLong(key,0)
 }
 

@@ -3,26 +3,26 @@
 
 
     <item
-        android:id="@+id/homeFragment"
+        android:id="@+id/homeFragment2"
         android:icon="@drawable/ic_home"
         android:title="@string/home"
         />
 
 
     <item
-        android:id="@+id/followFragment"
+        android:id="@+id/followFragment2"
         android:icon="@drawable/ic_people"
         android:title="@string/follow"
         />
 
     <item
-        android:id="@+id/favoritesFragment"
+        android:id="@+id/favoriteFragment"
         android:icon="@drawable/ic_fav"
         android:title="@string/favorite"
         />
 
     <item
-        android:id="@+id/moreFragment"
+        android:id="@+id/moreFragment2"
         android:icon="@drawable/ic_more"
         android:title="@string/more"
         />

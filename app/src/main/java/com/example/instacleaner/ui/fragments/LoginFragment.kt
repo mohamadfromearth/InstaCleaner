@@ -7,11 +7,13 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instacleaner.R
 import com.example.instacleaner.databinding.FragmentLoginBinding
 import com.example.instacleaner.ui.viewModels.LoginViewModel
 import com.example.instacleaner.utils.Constance.INSTAGRAM_URL
+import com.example.instacleaner.utils.showToast
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -29,11 +31,15 @@ class LoginFragment:Fragment(R.layout.fragment_login) {
         _binding = FragmentLoginBinding.bind(view)
          binding.viewModel = viewModel
         setWebView()
+        subscribeToObservers()
     }
 
     private fun subscribeToObservers(){
         viewModel.navToHome.observe(viewLifecycleOwner,{
-
+            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment2())
+        })
+        viewModel.invalidCookie.observe(viewLifecycleOwner, {
+            showToast(it)
         })
     }
 

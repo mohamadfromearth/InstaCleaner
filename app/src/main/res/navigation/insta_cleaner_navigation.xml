@@ -15,7 +15,11 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.instacleaner.ui.fragments.LoginFragment"
-        android:label="LoginFragment" />
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment2"
+            app:destination="@id/homeFragment2" />
+    </fragment>
     <fragment
         android:id="@+id/favoriteFragment"
         android:name="com.example.instacleaner.ui.fragments.FavoriteFragment"
