@@ -13,6 +13,7 @@ import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Resource
 import com.example.instacleaner.utils.SingleLiveEvent
+import com.example.instacleaner.utils.translateNumber
 import com.example.mohamadkh_instacleaner.data.remote.response.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -32,27 +33,30 @@ class HomeViewModel@Inject constructor(
 
     val loadingVisibility = ObservableInt(View.GONE)
     val userInfo = ObservableField<User>()
+    val followerCount = ObservableField("-")
 
-    val navigateToLogin = MutableLiveData<Boolean>()
+    val navigateToLogin = SingleLiveEvent<Boolean>()
     val accounts = MutableLiveData<ArrayList<Account>>()
 
      val errorMessage = SingleLiveEvent<String>()
 
     init {
-        if (!accountManager.isLogin()) navigateToLogin.value  = true  else getUserInfo(getAccount()!!)
+        if (!accountManager.isLogin()) navigateToLogin.value  = true  else getUserInfo()
 
 
     }
 
 
-    private fun getUserInfo(account: Account) = viewModelScope.launch {
+     fun getUserInfo(account: Account? = null) = viewModelScope.launch {
+         val acc = account ?: getAccount()
         loadingVisibility.set(View.VISIBLE)
-        when(val result = repository.getUserInfo(account)){
+        when(val result = repository.getUserInfo(acc!!)){
             is Resource.Success -> {
                 result.data?.let {
                     loadingVisibility.set(View.GONE)
                     userInfo.set(it.user)
-                    accountManager.updateAccount(it.user,account){ accountList ->
+                    followerCount.set(it.user.follower_count.translateNumber())
+                    accountManager.updateAccount(it.user,acc){ accountList ->
                         accounts.value = accountList
 
                     }
@@ -67,14 +71,13 @@ class HomeViewModel@Inject constructor(
     }
 
 
-    fun onAccountClickListener(account: Account?,position:Int,isLastIndex:Boolean){
-        if (!isLastIndex) getUserInfo(account!!)
-        else navigateToLogin.value =  true
+    fun onAccountClick(account: Account,position:Int){
+        getUserInfo(account)
     }
 
-
-
-
+    fun onAddAccountClick(){
+        navigateToLogin.value =  true
+    }
 
 
     private fun getAccount() = accountManager.getCurrentAccount()

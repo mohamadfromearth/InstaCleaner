@@ -1,7 +1,10 @@
 package com.example.instacleaner.ui.viewModels
 
 import android.content.SharedPreferences
+import android.view.View
 import android.webkit.CookieManager
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.instacleaner.data.local.Account
@@ -29,9 +32,16 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(private val accountManager: AccountManager):ViewModel() {
 
 
-    val navToHome = MutableLiveData<Boolean>()
+
+
+    private val isLogin = accountManager.isLogin()
+    val backBtnVisibility = if (isLogin) ObservableInt(View.VISIBLE ) else ObservableInt(View.GONE)
+
+    val navToHome = SingleLiveEvent<Boolean>()
 
     val invalidCookie = SingleLiveEvent<String>()
+
+    val popToHome = SingleLiveEvent<Boolean>()
 
 
    fun validateCookie(url: String?){
@@ -66,12 +76,11 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
     }
 
 
+    fun popToHomeFragment(){
+       popToHome.value = true
+    }
 
-
-
-
-
-   private fun getCookie(url:String) = CookieManager.getInstance().getCookie(url)
+    private fun getCookie(url:String) = CookieManager.getInstance().getCookie(url)
 
 
 

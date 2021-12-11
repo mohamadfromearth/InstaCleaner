@@ -47,4 +47,13 @@ object Constance {
     const val IS_LOGIN = "IS_LOGIN"
     const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
     const val ACCOUNT = "ACCOUNT"
+
+    //pref
+    const val PREF_USER_INDEX = "PREF_USER_INDEX"
+
+    //const
+    const val CON_MAX_ACCOUNT = 7
+
+    //arguments
+    const val ARG_COOKIE = "ARG_COOKIE"
 }

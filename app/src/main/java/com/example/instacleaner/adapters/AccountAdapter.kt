@@ -1,61 +1,114 @@
 package com.example.instacleaner.adapters
 
 
+import android.content.ClipData
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.instacleaner.R
 import com.example.instacleaner.data.local.Account
 import com.example.instacleaner.databinding.RowAccountBinding
+import com.example.instacleaner.databinding.RowAddAccountBinding
+import com.example.instacleaner.utils.log
 
-class AccountAdapter(private val onAccountClick:(position:Int,account:Account?,isLastIndex:Boolean)->Unit):RecyclerView.Adapter<AccountAdapter.AccountViewHolder>() {
+class AccountAdapter(
+    private val onAccountClick: (position: Int, account: Account) -> Unit,
+    private val onAddAccountClick: () -> Unit,
+) : ListAdapter<Account,ViewHolder>(DiffCallback()) {
 
-    private val differCallback = object : DiffUtil.ItemCallback<Account>() {
-         override fun areContentsTheSame(oldItem: Account, newItem: Account) = oldItem.userId == newItem.userId
 
-         override fun areItemsTheSame(oldItem: Account, newItem: Account) = oldItem.userId == newItem.userId
 
-     }
 
-    inner class AccountViewHolder(private val binding:RowAccountBinding):RecyclerView.ViewHolder(binding.root){
-        fun bind(account:Account?,isLastIndex:Boolean){
+
+
+
+    inner class AccountViewHolder(private val binding: RowAccountBinding) :
+        ViewHolder(binding.root) {
+        fun bind(account: Account) {
+            log("HOLDER:NORMAL")
             binding.apply {
-                if(!isLastIndex)
-                    setAccount(account)
-                else
-                    ivProfile.setImageResource(R.drawable.ic_add)
-
+                setAccount(account)
                 root.setOnClickListener {
-                   onAccountClick(adapterPosition,account,isLastIndex)
-               }
+                    onAccountClick(bindingAdapterPosition, account)
+                }
             }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = AccountViewHolder(DataBindingUtil.inflate(
-        LayoutInflater.from(parent.context),
-        R.layout.row_account,
-        parent,
-        false
-    ))
-
-    override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-        val isLastIndex = position == differ.currentList.size
-        val account = if (!isLastIndex) differ.currentList[position] else null
-        holder.bind(account,isLastIndex)
+    inner class AddAccountViewHolder(private val binding: RowAddAccountBinding) :
+        ViewHolder(binding.root) {
+        fun bind() {
+            log("HOLDER:ADD")
+            binding.apply {
+                root.setOnClickListener {
+                    onAddAccountClick()
+                }
+            }
+        }
     }
 
-    override fun getItemCount() = differ.currentList.size + 1
-
-
-    private  val differ = AsyncListDiffer(this,differCallback)
-
-    fun submitList(accounts:ArrayList<Account>){
-        differ.submitList(accounts)
+    override fun getItemViewType(position: Int): Int {
+        return position
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+       log("viewType$viewType")
+       log("size${currentList.size}")
+        return if (viewType == currentList.size) {
+            AddAccountViewHolder(
+                DataBindingUtil.inflate(
+                    LayoutInflater.from(parent.context),
+                    R.layout.row_add_account,
+                    parent,
+                    false
+                )
+            )
+        } else {
+            AccountViewHolder(
+                DataBindingUtil.inflate(
+                    LayoutInflater.from(parent.context),
+                    R.layout.row_account,
+                    parent,
+                    false
+                )
+            )
+        }
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        when (holder) {
+            is AccountViewHolder -> holder.bind(currentList[position])
+            is AddAccountViewHolder -> holder.bind()
+        }
+    }
+
+    override fun getItemCount() = if(currentList.isEmpty()) 0 else currentList.size + 1
+
+
+    companion object{
+
+        class DiffCallback : DiffUtil.ItemCallback<Account>() {
+
+
+            override fun areItemsTheSame(oldItem: Account, newItem: Account) =
+                oldItem.userId == newItem.userId
+
+
+            override fun areContentsTheSame(oldItem: Account, newItem: Account) =
+                oldItem == newItem
+        }
+
+    }
+
+
 
 
 }
+
+

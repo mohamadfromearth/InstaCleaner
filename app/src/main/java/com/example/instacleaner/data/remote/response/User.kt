@@ -92,7 +92,7 @@ data class User(
     //val is_video_creator: Boolean,
     //val latitude: Double,
     //val longitude: Double,
-    val media_count: Int,
+    val media_count: Int?,
     //val merchant_checkout_style: String,
     //val mini_shop_seller_onboarding_status: Any,
 //    val nametag: Nametag,

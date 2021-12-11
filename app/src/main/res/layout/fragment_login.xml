@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
@@ -12,11 +12,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:layout_margin="@dimen/distance_small"
+            android:layout_width="30dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/ic_arrow_right"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:elevation="1dp"
+            android:visibility="@{viewModel.backBtnVisibility}"
+            android:onClick="@{() -> viewModel.popToHomeFragment()}"
+            />
 
         <WebView
             android:id="@+id/wb_insta"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+
             />
 
 

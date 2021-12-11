@@ -5,11 +5,14 @@ import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.instacleaner.R
 import com.example.instacleaner.adapters.AccountAdapter
+import com.example.instacleaner.data.local.Account.Companion.cloned
 import com.example.instacleaner.databinding.FragmentHomeBinding
 import com.example.instacleaner.ui.viewModels.HomeViewModel
+import com.example.instacleaner.utils.Constance
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -26,6 +29,9 @@ class HomeFragment:Fragment(R.layout.fragment_home) {
     private val viewModel:HomeViewModel by viewModels()
     private lateinit var accountAdapter:AccountAdapter
 
+
+    private lateinit var nav:NavController
+
     private var _binding:FragmentHomeBinding? = null
     private val binding:FragmentHomeBinding
     get() = _binding!!
@@ -35,8 +41,12 @@ class HomeFragment:Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         _binding = DataBindingUtil.bind(view)
         binding.viewModel = viewModel
+        nav = findNavController()
         setUpRecyclerView()
         subscribeToObservers()
+
+
+
 
     }
 
@@ -46,15 +56,23 @@ class HomeFragment:Fragment(R.layout.fragment_home) {
             findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToLoginFragment())
         })
         viewModel.accounts.observe(viewLifecycleOwner,{
-            accountAdapter.submitList(it)
+
+            accountAdapter.submitList(it.cloned())
         })
+
+        nav.currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>(Constance.PREF_USER_INDEX)
+            ?.observe(viewLifecycleOwner) {
+                   viewModel.getUserInfo()
+            }
 
     }
 
 
     private fun setUpRecyclerView(){
-        accountAdapter = AccountAdapter(){ position, account,isLastIndex ->
-          viewModel.onAccountClickListener(account,position,isLastIndex)
+        accountAdapter = AccountAdapter({position, account ->
+            viewModel.onAccountClick(account,position)
+        }){
+          viewModel.onAddAccountClick()
         }
         binding.rvAccount.adapter =   accountAdapter
     }
