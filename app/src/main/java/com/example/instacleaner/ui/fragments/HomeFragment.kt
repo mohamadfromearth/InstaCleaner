@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.example.instacleaner.App
 import com.example.instacleaner.R
 import com.example.instacleaner.adapters.AccountAdapter
 import com.example.instacleaner.data.local.Account.Companion.cloned
@@ -14,27 +15,29 @@ import com.example.instacleaner.databinding.FragmentHomeBinding
 import com.example.instacleaner.ui.viewModels.HomeViewModel
 import com.example.instacleaner.utils.Constance
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 //first get account from sharePref  then if exists getUserInfo from insta api and set values into the ui
 //if doesn't exist navigate to login fragment
 
 
-
-
 @AndroidEntryPoint
-class HomeFragment:Fragment(R.layout.fragment_home) {
+class HomeFragment : Fragment(R.layout.fragment_home) {
 
 
-    private val viewModel:HomeViewModel by viewModels()
-    private lateinit var accountAdapter:AccountAdapter
+    private val viewModel: HomeViewModel by viewModels()
+    private lateinit var accountAdapter: AccountAdapter
 
 
-    private lateinit var nav:NavController
+    private lateinit var nav: NavController
 
-    private var _binding:FragmentHomeBinding? = null
-    private val binding:FragmentHomeBinding
-    get() = _binding!!
+    private var _binding: FragmentHomeBinding? = null
+    private val binding: FragmentHomeBinding
+        get() = _binding!!
+
+    @Inject
+    lateinit var app: App
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,37 +49,34 @@ class HomeFragment:Fragment(R.layout.fragment_home) {
         subscribeToObservers()
 
 
-
-
     }
 
 
-    private fun subscribeToObservers(){
-        viewModel.navigateToLogin.observe(viewLifecycleOwner,{
+    private fun subscribeToObservers() {
+        viewModel.navigateToLogin.observe(viewLifecycleOwner, {
             findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToLoginFragment())
         })
-        viewModel.accounts.observe(viewLifecycleOwner,{
+        viewModel.accounts.observe(viewLifecycleOwner, {
 
             accountAdapter.submitList(it.cloned())
         })
 
         nav.currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>(Constance.PREF_USER_INDEX)
             ?.observe(viewLifecycleOwner) {
-                   viewModel.getUserInfo()
+                viewModel.getUserInfo()
             }
 
     }
 
 
-    private fun setUpRecyclerView(){
-        accountAdapter = AccountAdapter({position, account ->
-            viewModel.onAccountClick(account,position)
-        }){
-          viewModel.onAddAccountClick()
+    private fun setUpRecyclerView() {
+        accountAdapter = AccountAdapter({ position, account ->
+            viewModel.onAccountClick(account, position)
+        }) {
+            viewModel.onAddAccountClick()
         }
-        binding.rvAccount.adapter =   accountAdapter
+        binding.rvAccount.adapter = accountAdapter
     }
-
 
 
 }

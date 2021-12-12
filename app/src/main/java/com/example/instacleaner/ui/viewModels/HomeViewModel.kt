@@ -20,46 +20,50 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-
-
-
-
 @HiltViewModel
-class HomeViewModel@Inject constructor(
-    private val accountManager:AccountManager,
-    private val repository:InstaRepository
-):ViewModel() {
-
+class HomeViewModel @Inject constructor(
+    private val accountManager: AccountManager,
+    private val repository: InstaRepository
+) : ViewModel() {
 
     val loadingVisibility = ObservableInt(View.GONE)
     val userInfo = ObservableField<User>()
     val followerCount = ObservableField("-")
+    val followingCount = ObservableField("-")
+    val postCount = ObservableField("-")
 
     val navigateToLogin = SingleLiveEvent<Boolean>()
     val accounts = MutableLiveData<ArrayList<Account>>()
 
-     val errorMessage = SingleLiveEvent<String>()
+    val errorMessage = SingleLiveEvent<String>()
 
     init {
-        if (!accountManager.isLogin()) navigateToLogin.value  = true  else getUserInfo()
+        if (!accountManager.isLogin()) navigateToLogin.value = true else getUserInfo()
 
 
     }
 
 
-     fun getUserInfo(account: Account? = null) = viewModelScope.launch {
-         val acc = account ?: getAccount()
+    fun getUserInfo(account: Account? = null) = viewModelScope.launch {
+        if (account == null) accountManager.refreshSharePreferenceValue()
+        val acc = account ?: getAccount()
         loadingVisibility.set(View.VISIBLE)
-        when(val result = repository.getUserInfo(acc!!)){
+        when (val result = repository.getUserInfo(acc!!)) {
             is Resource.Success -> {
                 result.data?.let {
                     loadingVisibility.set(View.GONE)
                     userInfo.set(it.user)
                     followerCount.set(it.user.follower_count.translateNumber())
-                    accountManager.updateAccount(it.user,acc){ accountList ->
-                        accounts.value = accountList
+                    followingCount.set(it.user.following_count.translateNumber())
+                    postCount.set(it.user.media_count.translateNumber())
+                    if (acc.user == null)
+                        accountManager.updateAccount(it.user, acc) { accountList ->
+                            accounts.value = accountList
+                        }
+                    else
+                        accountManager.setCurrentAccount(acc.userId)
+                    accounts.value = accountManager.getAccounts()
 
-                    }
                 }
 
             }
@@ -71,20 +75,16 @@ class HomeViewModel@Inject constructor(
     }
 
 
-    fun onAccountClick(account: Account,position:Int){
+    fun onAccountClick(account: Account, position: Int) {
         getUserInfo(account)
     }
 
-    fun onAddAccountClick(){
-        navigateToLogin.value =  true
+    fun onAddAccountClick() {
+        navigateToLogin.value = true
     }
 
 
     private fun getAccount() = accountManager.getCurrentAccount()
-
-
-
-
 
 
 }

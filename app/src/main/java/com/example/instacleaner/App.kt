@@ -7,6 +7,6 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class App:Application() {
 
-    var currentAccounts:Account? = null
+    var currentAccount:Account? = null
 
 }

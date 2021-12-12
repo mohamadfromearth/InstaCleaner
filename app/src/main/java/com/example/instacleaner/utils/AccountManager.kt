@@ -11,10 +11,18 @@ import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 
 class AccountManager@Inject constructor(private  val prefManager:PreferenceManager){
-    private val accountsStringFromSharePref = prefManager.getString(Constance.ACCOUNT)
-    private val accountListTypeForGson =  object : TypeToken<List<Account>>() {}.type
-    private val accounts = Gson().fromJson<ArrayList<Account>>(accountsStringFromSharePref, accountListTypeForGson)
-    private val currentAccount = prefManager.getLong(CURRENT_ACCOUNT)
+    private var accountsStringFromSharePref = prefManager.getString(Constance.ACCOUNT)
+    private var accountListTypeForGson =  object : TypeToken<List<Account>>() {}.type
+    private var accounts = Gson().fromJson<ArrayList<Account>>(accountsStringFromSharePref, accountListTypeForGson)
+    private var currentAccount = prefManager.getLong(CURRENT_ACCOUNT)
+
+
+    fun refreshSharePreferenceValue(){
+         accountsStringFromSharePref = prefManager.getString(Constance.ACCOUNT)
+         accountListTypeForGson =  object : TypeToken<List<Account>>() {}.type
+         accounts = Gson().fromJson<ArrayList<Account>>(accountsStringFromSharePref, accountListTypeForGson)
+         currentAccount = prefManager.getLong(CURRENT_ACCOUNT)
+    }
 
     private fun isAccountExists(account:Account):Boolean{
         accounts?.let { accounts ->
@@ -38,6 +46,16 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
 
 
     }
+
+    fun setCurrentAccount(userId:Long){
+        prefManager.set(CURRENT_ACCOUNT,userId)
+    }
+
+     fun getAccounts():ArrayList<Account>{
+        return accounts
+    }
+
+
      fun updateAccount(user: User,account:Account,callback:(accounts:ArrayList<Account>)->Unit){
          accounts?.let {  accounts ->
               accounts.first { it.userId == user.pk }.user = user
@@ -59,7 +77,7 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
         prefManager.set(ACCOUNT,accountsJson)
         prefManager.set(IS_LOGIN,true)
     }
-    fun getAccounts() = accounts
+    //private fun getAccounts() = accounts
 
     fun isLogin() = prefManager.getBoolean(IS_LOGIN)
 

@@ -1,21 +1,14 @@
 package com.example.instacleaner.ui.viewModels
 
-import android.content.SharedPreferences
 import android.view.View
 import android.webkit.CookieManager
-import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableInt
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.instacleaner.App
 import com.example.instacleaner.data.local.Account
 import com.example.instacleaner.utils.AccountManager
-import com.example.instacleaner.utils.Constance.ACCOUNT
-import com.example.instacleaner.utils.Constance.CURRENT_ACCOUNT
-import com.example.instacleaner.utils.PreferenceManager
 import com.example.instacleaner.utils.SingleLiveEvent
 import com.example.instacleaner.utils.extractCookie
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -29,7 +22,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val accountManager: AccountManager):ViewModel() {
+class LoginViewModel @Inject constructor(private val accountManager: AccountManager,private val app:App):ViewModel() {
 
 
 
@@ -52,6 +45,7 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
                    cookie.contains("sessionid=") -> {
                        val userId = extractCookie(cookie, "sessionid=")
                        accountManager.saveAccount(Account(userId.toLong(),cookie))
+                       app.currentAccount = Account(userId.toLong(),cookie)
                        clearCookies()
                        navToHome.value = true
                    }
@@ -59,6 +53,7 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
                        val userId = extractCookie(cookie, "ds_user_id=")
                        accountManager.saveAccount(Account(userId.toLong(),cookie))
                        clearCookies()
+                       app.currentAccount = Account(userId.toLong(),cookie)
                        navToHome.value = true
                    }
                    else -> invalidCookie.value = "Invalid cookie"
@@ -72,7 +67,6 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
     private fun clearCookies() {
         CookieManager.getInstance().removeAllCookies(null)
         CookieManager.getInstance().flush()
-
     }
 
 

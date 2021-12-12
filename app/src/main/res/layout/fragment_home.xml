@@ -14,278 +14,252 @@
     </data>
 
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
 
-
-
-
-
-
-
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_account"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toTopOf="parent"
+            app:reverseLayout="true"
 
+            />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_account"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/distance_big"
+            app:layout_constraintTop_toBottomOf="@id/rv_account">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:orientation="horizontal"
-                app:reverseLayout="true"
 
-                />
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_account"
-                android:layout_marginTop="@dimen/distance_big"
                 >
-                <androidx.constraintlayout.widget.ConstraintLayout
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_profile"
+                    imageUrl="@{viewModel.userInfo.profile_pic_url}"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearance="@style/circleImageView" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/home_tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:maxLines="1"
+                    android:text="@{viewModel.userInfo.full_name}"
+                    android:textColor="?attr/colorPrimaryDark"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_profile" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/home_tv_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:maxLines="1"
+                    android:text="@{viewModel.userInfo.username}"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/home_tv_name" />
+
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/home_cvStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:layout_constraintTop_toBottomOf="@id/home_tv_username">
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/home_tvFollowerText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/iran_sans_web_medium"
+                            android:gravity="center"
+                            android:text="@string/followers"
+                            android:textAllCaps="true"
+                            android:textColor="@color/md_grey_500"
+                            android:textSize="14sp"
+                            app:layout_constraintEnd_toStartOf="@+id/home_tvPostText"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/home_tvPostText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/iran_sans_web_medium"
+                            android:gravity="center"
+                            android:text="@string/posts"
+                            android:textAllCaps="true"
+                            android:textColor="@color/md_grey_500"
+                            android:textSize="14sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/home_tvFollowingText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/iran_sans_web_medium"
+                            android:gravity="center"
+                            android:text="@string/followings"
+                            android:textAllCaps="true"
+                            android:textColor="@color/md_grey_500"
+                            android:textSize="14sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/home_tvPostText"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/home_tvFollower"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/iran_sans_web_medium"
+                            android:gravity="center"
+                            android:text="@{viewModel.followerCount}"
+                            android:textColor="?attr/colorPrimaryDark"
+                            android:textSize="24sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/home_tvFollowerText"
+                            app:layout_constraintStart_toStartOf="@+id/home_tvFollowerText"
+                            app:layout_constraintTop_toBottomOf="@+id/home_tvFollowerText" />
+
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/home_tvPost"
+                            android:text='@{viewModel.postCount}'
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/iran_sans_web_medium"
+                            android:gravity="center"
+                            android:textColor="?attr/colorPrimaryDark"
+                            android:textSize="24sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/home_tvPostText"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/home_tvFollowerText"
+                            app:layout_constraintTop_toBottomOf="@+id/home_tvPostText" />
+
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/home_tvFollowing"
+                            android:text="@{viewModel.followingCount}"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/iran_sans_web_medium"
+                            android:gravity="center"
+                            android:textColor="?attr/colorPrimaryDark"
+                            android:textSize="24sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/home_tvPostText"
+                            app:layout_constraintTop_toBottomOf="@+id/home_tvFollowingText" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                </com.google.android.material.card.MaterialCardView>
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/my_analyze"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/iran_sans_web_light"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/analyze_my_posts"
+                    app:cornerRadius="0dp"
+                    app:icon="@drawable/ic_stats"
+                    app:iconGravity="end"
+                    app:layout_constraintTop_toBottomOf="@+id/home_cvStats"
 
-                    >
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/iv_profile"
-                        android:layout_width="90dp"
-                        android:layout_height="90dp"
-                        android:layout_marginTop="16dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:shapeAppearance="@style/circleImageView"
-                        imageUrl="@{viewModel.userInfo.profile_pic_url}"
-                        />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/home_tv_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@{viewModel.userInfo.full_name}"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/iv_profile"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimaryDark"
-                        android:textSize="18sp"
-                        />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/home_tv_username"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/home_tv_name"
-                        android:maxLines="1"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="14sp"
-                        android:text="@{viewModel.userInfo.username}"
-                        />
+                    />
 
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/home_cvStats"
-                        android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginBottom="8dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="6dp"
-                        app:layout_constraintTop_toBottomOf="@id/home_tv_username">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/show_my_post"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/iran_sans_web_light"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/view_my_posts"
+                    app:icon="@drawable/ic_grid"
+                    app:iconGravity="end"
+                    app:iconSize="24dp"
+                    app:iconTint="@color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/my_analyze" />
 
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/iran_sans_web_light"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/share_this_app"
+                    app:icon="@drawable/ic_share"
+                    app:iconGravity="end"
+                    app:layout_constraintTop_toBottomOf="@+id/show_my_post"
 
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/home_tvFollowerText"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/iran_sans_web_medium"
-                                android:gravity="center"
-                                android:text="@string/followers"
-                                android:textAllCaps="true"
-                                android:textColor="@color/md_grey_500"
-                                android:textSize="14sp"
-                                app:layout_constraintEnd_toStartOf="@+id/home_tvPostText"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/home_tvPostText"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/iran_sans_web_medium"
-                                android:gravity="center"
-                                android:text="@string/posts"
-                                android:textAllCaps="true"
-                                android:textColor="@color/md_grey_500"
-                                android:textSize="14sp"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                    />
 
 
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/home_tvFollowingText"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/iran_sans_web_medium"
-                                android:gravity="center"
-                                android:text="@string/followings"
-                                android:textAllCaps="true"
-                                android:textColor="@color/md_grey_500"
-                                android:textSize="14sp"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/home_tvPostText"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/home_tvFollower"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/iran_sans_web_medium"
-                                android:gravity="center"
-                                android:text="@{viewModel.followerCount}"
-                                android:textColor="?attr/colorPrimaryDark"
-                                android:textSize="24sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="@+id/home_tvFollowerText"
-                                app:layout_constraintStart_toStartOf="@+id/home_tvFollowerText"
-                                app:layout_constraintTop_toBottomOf="@+id/home_tvFollowerText" />
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="7dp"
+                    android:visibility="@{viewModel.loadingVisibility}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
 
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/home_tvPost"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/iran_sans_web_medium"
-                                android:gravity="center"
-                                translateNumber='@{viewModel.userInfo.media_count + ``}'
-                                android:textColor="?attr/colorPrimaryDark"
-                                android:textSize="24sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="@+id/home_tvPostText"
-                                app:layout_constraintLeft_toLeftOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/home_tvFollowerText"
-                                app:layout_constraintTop_toBottomOf="@+id/home_tvPostText" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
 
 
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/home_tvFollowing"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/iran_sans_web_medium"
-                                android:gravity="center"
-                                translateNumber="@{viewModel.userInfo.following_count + ``}"
-                                android:textColor="?attr/colorPrimaryDark"
-                                android:textSize="24sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/home_tvPostText"
-                                app:layout_constraintTop_toBottomOf="@+id/home_tvFollowingText" />
-
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
-
-                    </com.google.android.material.card.MaterialCardView>
-
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_marginTop="20dp"
-                        android:id="@+id/my_analyze"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@+id/home_cvStats"
-                        android:text="@string/analyze_my_posts"
-                        android:fontFamily="@font/iran_sans_web_light"
-                        android:gravity="start|center_vertical"
-                        app:cornerRadius="0dp"
-                        app:icon="@drawable/ic_stats"
-                        app:iconGravity="end"
-
-                        />
-
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_marginTop="20dp"
-                        android:id="@+id/show_my_post"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@+id/my_analyze"
-                        android:text="@string/view_my_posts"
-                        app:iconSize="24dp"
-                        app:iconTint="@color/white"
-                        android:gravity="start|center_vertical"
-                        android:fontFamily="@font/iran_sans_web_light"
-                        app:iconGravity="end"
-                        app:icon="@drawable/ic_grid"
-                        />
-
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_marginTop="20dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@+id/show_my_post"
-                        android:gravity="start|center_vertical"
-                        android:text="@string/share_this_app"
-                        app:icon="@drawable/ic_share"
-                        android:fontFamily="@font/iran_sans_web_light"
-                        app:iconGravity="end"
-
-                        />
-
-
-                    <ProgressBar
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        android:elevation="7dp"
-                        android:visibility="@{viewModel.loadingVisibility}"
-                        />
-
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </ScrollView>
-            
-
-
-
-
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </layout>
