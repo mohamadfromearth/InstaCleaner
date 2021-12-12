@@ -97,7 +97,7 @@ class AccountAdapter(
 
 
             override fun areItemsTheSame(oldItem: Account, newItem: Account) =
-                oldItem.userId == newItem.userId
+                oldItem.user.pk == newItem.user.pk
 
 
             override fun areContentsTheSame(oldItem: Account, newItem: Account) =

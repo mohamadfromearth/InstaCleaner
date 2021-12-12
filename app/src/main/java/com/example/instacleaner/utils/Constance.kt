@@ -43,8 +43,8 @@ object Constance {
     const val IG_VERSION = "115.0.0.26.111"
     const val VERSION_CODE = "146536611"
     //sharePref
-    const val COOKIE = "COOKIE"
-    const val IS_LOGIN = "IS_LOGIN"
+//    const val COOKIE = "COOKIE"
+//    const val IS_LOGIN = "IS_LOGIN"
     const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
     const val ACCOUNT = "ACCOUNT"
 

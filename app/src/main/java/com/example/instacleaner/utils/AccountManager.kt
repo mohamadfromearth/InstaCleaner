@@ -4,44 +4,36 @@ package com.example.instacleaner.utils
 import com.example.instacleaner.data.local.Account
 import com.example.instacleaner.utils.Constance.ACCOUNT
 import com.example.instacleaner.utils.Constance.CURRENT_ACCOUNT
-import com.example.instacleaner.utils.Constance.IS_LOGIN
-import com.example.mohamadkh_instacleaner.data.remote.response.User
+import com.example.instacleaner.data.remote.response.User
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 
 class AccountManager@Inject constructor(private  val prefManager:PreferenceManager){
-    private var accountsStringFromSharePref = prefManager.getString(Constance.ACCOUNT)
+    private var accountsStringFromSharePref = prefManager.getString(ACCOUNT)
     private var accountListTypeForGson =  object : TypeToken<List<Account>>() {}.type
-    private var accounts = Gson().fromJson<ArrayList<Account>>(accountsStringFromSharePref, accountListTypeForGson)
+    private var accounts : ArrayList<Account> = Gson().fromJson(accountsStringFromSharePref, accountListTypeForGson) ?: arrayListOf()
     private var currentAccount = prefManager.getLong(CURRENT_ACCOUNT)
 
 
-    fun refreshSharePreferenceValue(){
-         accountsStringFromSharePref = prefManager.getString(Constance.ACCOUNT)
-         accountListTypeForGson =  object : TypeToken<List<Account>>() {}.type
-         accounts = Gson().fromJson<ArrayList<Account>>(accountsStringFromSharePref, accountListTypeForGson)
-         currentAccount = prefManager.getLong(CURRENT_ACCOUNT)
-    }
+//    fun refreshSharePreferenceValue(){
+//         accountsStringFromSharePref = prefManager.getString(ACCOUNT)
+//         accountListTypeForGson =  object : TypeToken<List<Account>>() {}.type
+//         accounts = Gson().fromJson(accountsStringFromSharePref, accountListTypeForGson)
+//         currentAccount = prefManager.getLong(CURRENT_ACCOUNT)
+//    }
 
-    private fun isAccountExists(account:Account):Boolean{
-        accounts?.let { accounts ->
-            accounts.forEach{
-                if (account.userId == it.userId) return true
-            }
-        }
-
-        return false
-    }
+    private fun isAccountExists(account:Account)= accounts.any { it.user.pk == account.user.pk }
 
     fun saveAccount(account:Account){
         if (isAccountExists(account)) return
-        accounts?.let {
-          saveAccountHelper(it,account)
-        }?:kotlin.run {
-            val accounts = arrayListOf<Account>()
-            saveAccountHelper(accounts,account)
-        }
+        saveAccountHelper(account)
+//        accounts?.let {
+//          saveAccountHelper(it,account)
+//        }?:kotlin.run {
+//            val accounts = arrayListOf<Account>()
+//            saveAccountHelper(accounts,account)
+//        }
 
 
 
@@ -56,13 +48,19 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
     }
 
 
-     fun updateAccount(user: User,account:Account,callback:(accounts:ArrayList<Account>)->Unit){
-         accounts?.let {  accounts ->
-              accounts.first { it.userId == user.pk }.user = user
-              prefManager.set(CURRENT_ACCOUNT,account.userId)
-             updateAccountHelper(accounts)
-             callback(accounts)
-         }
+//     fun updateAccount(user: User, account:Account, callback:(accounts:ArrayList<Account>)->Unit){
+//         accounts?.let {  accounts ->
+//              accounts.first { it.userId == user.pk }.user = user
+//              prefManager.set(CURRENT_ACCOUNT,account.userId)
+//             updateAccountHelper(accounts)
+//             callback(accounts)
+//         }
+//     }
+     fun updateAccount(user: User,callback:(accounts:ArrayList<Account>)->Unit){
+         accounts.first { it.user.pk == user.pk }.user = user
+         currentAccount = user.pk
+         updateAccountHelper(accounts)
+         callback(accounts)
      }
 
     private fun updateAccountHelper(accounts:ArrayList<Account>){
@@ -70,16 +68,17 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
         prefManager.set(ACCOUNT,accountsJson)
     }
 
-    private fun saveAccountHelper(accounts:ArrayList<Account>,account: Account){
+    private fun saveAccountHelper(account: Account){
         accounts.add(account)
         val accountsJson = Gson().toJson(accounts)
-        prefManager.set(CURRENT_ACCOUNT,account.userId)
+        currentAccount = account.user.pk
+        prefManager.set(CURRENT_ACCOUNT,account.user.pk)
         prefManager.set(ACCOUNT,accountsJson)
-        prefManager.set(IS_LOGIN,true)
+//        prefManager.set(IS_LOGIN,true)
     }
     //private fun getAccounts() = accounts
 
-    fun isLogin() = prefManager.getBoolean(IS_LOGIN)
+    fun isLogin() = accounts.isEmpty().not()
 
-    fun getCurrentAccount() = accounts.find { it.userId == currentAccount }
+    fun getCurrentAccount() = accounts.first { it.user.pk == currentAccount }
 }

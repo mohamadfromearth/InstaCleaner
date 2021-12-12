@@ -1,7 +1,7 @@
 package com.example.instacleaner.ui.viewModels
 
 
-import android.util.Log
+
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -14,7 +14,7 @@ import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Resource
 import com.example.instacleaner.utils.SingleLiveEvent
 import com.example.instacleaner.utils.translateNumber
-import com.example.mohamadkh_instacleaner.data.remote.response.User
+import com.example.instacleaner.data.remote.response.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,17 +38,24 @@ class HomeViewModel @Inject constructor(
     val errorMessage = SingleLiveEvent<String>()
 
     init {
-        if (!accountManager.isLogin()) navigateToLogin.value = true else getUserInfo()
+
+
+
+        if(accountManager.isLogin()) getUserInfo(accountManager.getCurrentAccount()) else navigateToLogin.value = true
+
 
 
     }
 
+    fun login(){
+        getUserInfo(accountManager.getCurrentAccount())
+    }
 
-    fun getUserInfo(account: Account? = null) = viewModelScope.launch {
-        if (account == null) accountManager.refreshSharePreferenceValue()
-        val acc = account ?: getAccount()
+   private fun getUserInfo(account: Account) = viewModelScope.launch {
+//        if (account == null) accountManager.refreshSharePreferenceValue()
+//        val acc = account ?: getAccount()
         loadingVisibility.set(View.VISIBLE)
-        when (val result = repository.getUserInfo(acc!!)) {
+        when (val result = repository.getUserInfo(account)) {
             is Resource.Success -> {
                 result.data?.let {
                     loadingVisibility.set(View.GONE)
@@ -56,14 +63,9 @@ class HomeViewModel @Inject constructor(
                     followerCount.set(it.user.follower_count.translateNumber())
                     followingCount.set(it.user.following_count.translateNumber())
                     postCount.set(it.user.media_count.translateNumber())
-                    if (acc.user == null)
-                        accountManager.updateAccount(it.user, acc) { accountList ->
-                            accounts.value = accountList
-                        }
-                    else
-                        accountManager.setCurrentAccount(acc.userId)
-                    accounts.value = accountManager.getAccounts()
-
+                    accountManager.updateAccount(it.user) { accountList ->
+                        accounts.value = accountList
+                    }
                 }
 
             }
@@ -84,7 +86,7 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    private fun getAccount() = accountManager.getCurrentAccount()
+
 
 
 }

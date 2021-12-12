@@ -6,6 +6,7 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.ViewModel
 import com.example.instacleaner.App
 import com.example.instacleaner.data.local.Account
+import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.SingleLiveEvent
 import com.example.instacleaner.utils.extractCookie
@@ -27,14 +28,14 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
 
 
 
-    private val isLogin = accountManager.isLogin()
-    val backBtnVisibility = if (isLogin) ObservableInt(View.VISIBLE ) else ObservableInt(View.GONE)
+//    private val isLogin = accountManager.isLogin()
+    val backBtnVisibility = if (accountManager.isLogin()) ObservableInt(View.VISIBLE ) else ObservableInt(View.GONE)
 
     val navToHome = SingleLiveEvent<Boolean>()
 
     val invalidCookie = SingleLiveEvent<String>()
 
-    val popToHome = SingleLiveEvent<Boolean>()
+//    val popToHome = SingleLiveEvent<Boolean>()
 
 
    fun validateCookie(url: String?){
@@ -44,16 +45,17 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
                when {
                    cookie.contains("sessionid=") -> {
                        val userId = extractCookie(cookie, "sessionid=")
-                       accountManager.saveAccount(Account(userId.toLong(),cookie))
-                       app.currentAccount = Account(userId.toLong(),cookie)
+                       accountManager.saveAccount(Account(cookie,User(pk = userId.toLong())))
+
+//                       app.currentAccount = Account(userId.toLong(),cookie)
                        clearCookies()
                        navToHome.value = true
                    }
                    cookie.contains("db_user_id") -> {
                        val userId = extractCookie(cookie, "ds_user_id=")
-                       accountManager.saveAccount(Account(userId.toLong(),cookie))
+                       accountManager.saveAccount(Account(cookie,User(pk = userId.toLong())))
                        clearCookies()
-                       app.currentAccount = Account(userId.toLong(),cookie)
+//                       app.currentAccount = Account(userId.toLong(),cookie)
                        navToHome.value = true
                    }
                    else -> invalidCookie.value = "Invalid cookie"
@@ -71,7 +73,7 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
 
 
     fun popToHomeFragment(){
-       popToHome.value = true
+       navToHome.value = false
     }
 
     private fun getCookie(url:String) = CookieManager.getInstance().getCookie(url)

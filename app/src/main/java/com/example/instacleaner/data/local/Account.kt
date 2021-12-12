@@ -1,13 +1,11 @@
 package com.example.instacleaner.data.local
 
-import com.example.mohamadkh_instacleaner.data.remote.response.User
+import com.example.instacleaner.data.remote.response.User
 
 data class Account(
-    val userId:Long = 0,
-    val cookie:String = "",
-    var user : User? = null,
-    var isLast:Boolean = false
-
+    val cookie:String,
+    var user : User,
+    var isSelected : Boolean = false,
     ){
     companion object {
         fun ArrayList<Account>.cloned() = ArrayList(map { it.copy() })

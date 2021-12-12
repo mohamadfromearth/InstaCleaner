@@ -35,28 +35,19 @@ class LoginFragment:Fragment(R.layout.fragment_login) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentLoginBinding.bind(view)
          binding.viewModel = viewModel
-
         nav = findNavController()
         setWebView()
         subscribeToObservers()
-
-
-
-
     }
 
     private fun subscribeToObservers(){
         viewModel.navToHome.observe(viewLifecycleOwner,{
-            nav.previousBackStackEntry?.savedStateHandle?.set(PREF_USER_INDEX, true)
+            nav.previousBackStackEntry?.savedStateHandle?.set(PREF_USER_INDEX, it)
             nav.popBackStack()
         })
         viewModel.invalidCookie.observe(viewLifecycleOwner, {
             showToast(it)
         })
-        viewModel.popToHome.observe(viewLifecycleOwner,{
-            nav.popBackStack()
-        })
-
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -73,6 +64,11 @@ class LoginFragment:Fragment(R.layout.fragment_login) {
                 viewModel.validateCookie(url)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

@@ -4,7 +4,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <data>
 
         <variable
@@ -19,6 +18,18 @@
         android:layout_height="wrap_content">
 
 
+        <LinearLayout
+            android:id="@+id/toolBar"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+
+        </LinearLayout>
+
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_account"
             android:layout_width="match_parent"
@@ -27,7 +38,6 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
             app:reverseLayout="true"
-
             />
 
         <ScrollView
@@ -39,7 +49,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 >
 
                 <com.google.android.material.imageview.ShapeableImageView
@@ -222,6 +231,7 @@
                     android:fontFamily="@font/iran_sans_web_light"
                     android:gravity="start|center_vertical"
                     android:text="@string/view_my_posts"
+                    app:cornerRadius="0dp"
                     app:icon="@drawable/ic_grid"
                     app:iconGravity="end"
                     app:iconSize="24dp"
@@ -236,10 +246,10 @@
                     android:fontFamily="@font/iran_sans_web_light"
                     android:gravity="start|center_vertical"
                     android:text="@string/share_this_app"
+                    app:cornerRadius="0dp"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="end"
                     app:layout_constraintTop_toBottomOf="@+id/show_my_post"
-
                     />
 
 

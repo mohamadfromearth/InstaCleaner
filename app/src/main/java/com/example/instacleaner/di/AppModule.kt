@@ -49,6 +49,13 @@ object AppModule {
 
 
 
+    @Singleton
+    @Provides
+    fun providesAccountManager(preferenceManager: PreferenceManager): AccountManager =
+        AccountManager(preferenceManager)
+
+
+
 
 
 

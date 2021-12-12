@@ -18,7 +18,7 @@ class InstaRepository @Inject constructor(private val instaApi:InstaApi) {
     suspend fun getUserInfo(account:Account): Resource<UserInfo> {
 
      return try {
-          val response = instaApi.getUserInfo(getUserHeaders(account.cookie),account.userId)
+          val response = instaApi.getUserInfo(getUserHeaders(account.cookie),account.user.pk)
           handleResponse(response)
       }catch (t:Throwable){
           return Resource.Error(t.message!!)

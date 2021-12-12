@@ -1,6 +1,6 @@
 package com.example.mohamadkh_instacleaner.data.remote.response.userFollowers
 
-import com.example.mohamadkh_instacleaner.data.remote.response.User
+import com.example.instacleaner.data.remote.response.User
 
 data class UserFollowers(
     val big_list: Boolean,
