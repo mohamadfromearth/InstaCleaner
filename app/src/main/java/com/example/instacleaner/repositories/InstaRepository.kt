@@ -28,9 +28,9 @@ class InstaRepository @Inject constructor(private val instaApi:InstaApi) {
 
     }
 
-    suspend fun getFollower(account: Account):Resource<UserFollowers>{
+    suspend fun getFollower(account: Account,maxId:String):Resource<UserFollowers>{
         return try {
-            val response = instaApi.getFollowers(getUserHeaders(account.cookie),account.user.pk,"")
+            val response = instaApi.getFollowers(getUserHeaders(account.cookie),account.user.pk,maxId)
             handleResponse(response)
         }catch (t:Throwable){
             return Resource.Error(t.message!!)

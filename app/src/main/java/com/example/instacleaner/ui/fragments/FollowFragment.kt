@@ -7,6 +7,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.RecyclerView
+import com.example.instacleaner.App
 import com.example.instacleaner.R
 import com.example.instacleaner.adapters.FollowAdapter
 import com.example.instacleaner.databinding.FragmentFollowBinding
@@ -15,6 +17,7 @@ import com.example.instacleaner.utils.log
 import com.example.instacleaner.utils.setChildTypeface
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class FollowFragment : Fragment(R.layout.fragment_follow) {
@@ -22,6 +25,10 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
     private lateinit var adapter: FollowAdapter
 
     private val viewModel:FollowViewModel by viewModels()
+
+
+    @Inject
+    lateinit var app: App
 
     private var _binding: FragmentFollowBinding? = null
     private val binding: FragmentFollowBinding
@@ -33,18 +40,36 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
         _binding = DataBindingUtil.bind(view)!!
         binding.viewModel = viewModel
         setUpRecyclerView()
+        init()
         setUpTabView()
         subscribeToObservers()
 
     }
 
+    private fun init(){
+        binding.rvFollow.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+//               log("paging:${recyclerView.computeVerticalScrollExtent()}\t${recyclerView.computeVerticalScrollOffset()}\t${recyclerView.computeVerticalScrollRange()}")
+//               log("paging: ${recyclerView.computeVerticalScrollOffset()}")
+               // 10282
+//                log("paging h: ${recyclerView.computeVerticalScrollRange()}")
+                if(recyclerView.computeVerticalScrollExtent() +
+                recyclerView.computeVerticalScrollOffset() >
+                recyclerView.computeVerticalScrollRange() - 100
+                        ){
+                    viewModel.paginate()
+                }
+            }
+        })
+    }
 
 
     private fun subscribeToObservers(){
         viewModel.adapterList.observe(viewLifecycleOwner,{
-            adapter.submitList(it) {
-
-                binding.rvFollow.smoothScrollToPosition(0)
+            adapter.submitList(it.users.toList()) {
+              //  if (it.hasPaginate)
+                     // binding.rvFollow.smoothScrollToPosition(0)
             }
         })
 
@@ -84,6 +109,11 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
         })
 
     }
+
+
+
+
+
 
 
 }

@@ -5,11 +5,12 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.instacleaner.App
 import com.example.instacleaner.data.remote.response.User
+import com.example.instacleaner.data.remote.response.userFollowers.UserList
 import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Resource
-import com.example.instacleaner.utils.log
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,36 +18,44 @@ import javax.inject.Inject
 @HiltViewModel
 class FollowViewModel @Inject constructor(
     private val accountManager: AccountManager,
-    private val repository: InstaRepository
-) : ViewModel() {
+    private val repository: InstaRepository,
+    ) : ViewModel() {
 
     private var followersLoadingVisibility = false
     private var followingLoadingVisibility = false
     private var tabIndex = 0
-    private val followerList = ArrayList<User>()
-    private val followingList = ArrayList<User>()
+    private val followerList = arrayListOf<User>()
+    private val followingList = arrayListOf<User>()
 
     val loadingVisibility = ObservableInt(View.GONE)
 
 
-    val adapterList = MutableLiveData<List<User>>()
+    val adapterList = MutableLiveData<Pair<ArrayList<User>,Boolean>>()
+    private var maxId = ""
 
 
 
     init {
         getFollowers()
-        getFollowings()
+        // getFollowings()
     }
 
 
-    private fun getFollowers() = viewModelScope.launch {
+    fun paginate() {
+         if (tabIndex == 0){
+             getFollowers()
+         }
+    }
+
+    fun getFollowers() = viewModelScope.launch {
         followersLoadingVisibility = true
         setLoading()
-        when (val result = repository.getFollower(accountManager.getCurrentAccount())) {
+        when (val result = repository.getFollower(accountManager.getCurrentAccount(), maxId)) {
             is Resource.Success -> {
                 followersLoadingVisibility = false
-                followerList.addAll(result.data!!.users)
-               // log("max_idh: ${result.data.next_max_id}")
+                followerList.users.addAll(result.data!!.users)
+                // log("max_idh: ${result.data.next_max_id}")
+                maxId = result.data.next_max_id ?: ""
                 setLoading()
                 setList()
             }
@@ -63,8 +72,8 @@ class FollowViewModel @Inject constructor(
         when (val result = repository.getFollowing(accountManager.getCurrentAccount())) {
             is Resource.Success -> {
                 followingLoadingVisibility = false
-                followingList.addAll(result.data!!.users)
-                setList()
+                followingList.users.addAll(result.data!!.users)
+                setList(false)
                 setLoading()
             }
             is Resource.Error -> {
@@ -81,19 +90,19 @@ class FollowViewModel @Inject constructor(
         }
     }
 
-    private fun setList() {
+    private fun setList(returnToTop : Boolean) {
         if (tabIndex == 0) {
-            adapterList.value = followerList
+            adapterList.value = followerList to returnToTop
         } else {
-            adapterList.value = followingList
+            adapterList.value = followingList to returnToTop
         }
     }
 
 
-    fun userClickAction(user:User){
-        if (tabIndex == 0){
+    fun userClickAction(user: User) {
+        if (tabIndex == 0) {
             followerList
-        }else{
+        } else {
 
         }
     }
@@ -101,7 +110,7 @@ class FollowViewModel @Inject constructor(
     fun tabSelectAction(position: Int) {
         tabIndex = position
         setLoading()
-        setList()
+        setList(true)
 
     }
 

@@ -8,6 +8,7 @@ import dagger.hilt.android.HiltAndroidApp
 class App:Application() {
 
 
+
     companion object {
         @Volatile
         private lateinit var instance: App
