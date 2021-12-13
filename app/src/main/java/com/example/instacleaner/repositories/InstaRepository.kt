@@ -3,12 +3,11 @@ package com.example.instacleaner.repositories
 import android.os.Build
 import com.example.instacleaner.data.InstaApi
 import com.example.instacleaner.data.local.Account
-import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Constance.IG_VERSION
 import com.example.instacleaner.utils.Constance.VERSION_CODE
 import com.example.instacleaner.utils.Resource
 import com.example.instacleaner.utils.handleResponse
-import com.example.mohamadkh_instacleaner.data.remote.response.userFollowers.UserFollowers
+import com.example.instacleaner.data.remote.response.userFollowers.UserFollowers
 import com.example.mohamadkh_instacleaner.data.remote.response.userFollowings.UserFollowings
 import com.example.mohamadkh_instacleaner.data.remote.response.userInfo.UserInfo
 import java.util.*

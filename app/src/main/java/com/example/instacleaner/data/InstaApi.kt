@@ -1,6 +1,6 @@
 package com.example.instacleaner.data
 
-import com.example.mohamadkh_instacleaner.data.remote.response.userFollowers.UserFollowers
+import com.example.instacleaner.data.remote.response.userFollowers.UserFollowers
 import com.example.mohamadkh_instacleaner.data.remote.response.userFollowings.UserFollowings
 import com.example.mohamadkh_instacleaner.data.remote.response.userInfo.UserInfo
 import retrofit2.Response

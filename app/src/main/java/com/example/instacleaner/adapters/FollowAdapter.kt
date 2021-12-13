@@ -10,21 +10,15 @@ import com.example.instacleaner.R
 import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.databinding.RowFollowBinding
 
+class FollowAdapter(private val onUserClick:(user:User) ->Unit): ListAdapter<User,FollowAdapter.FollowViewHolder>(DiffCallback()) {
 
-class FollowAdapter: ListAdapter<User,FollowAdapter.FollowViewHolder>(DiffCallback()) {
-
-
-
-
-
-
-
-
-
-      inner class FollowViewHolder(private val binding:RowFollowBinding):RecyclerView.ViewHolder(binding.root){
+    inner class FollowViewHolder(private val binding:RowFollowBinding):RecyclerView.ViewHolder(binding.root){
           fun bind(user:User){
            binding.apply {
                setUser(user)
+               root.setOnClickListener {
+                   onUserClick(user)
+               }
            }
           }
       }

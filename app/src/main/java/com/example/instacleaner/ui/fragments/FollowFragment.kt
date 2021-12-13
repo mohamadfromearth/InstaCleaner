@@ -42,14 +42,19 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
 
     private fun subscribeToObservers(){
         viewModel.adapterList.observe(viewLifecycleOwner,{
-            adapter.submitList(it)
+            adapter.submitList(it) {
+
+                binding.rvFollow.smoothScrollToPosition(0)
+            }
         })
 
     }
 
 
     private fun setUpRecyclerView() {
-        adapter = FollowAdapter()
+        adapter = FollowAdapter(){
+
+        }
         binding.rvFollow.adapter = adapter
     }
 
@@ -63,7 +68,7 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
                 log("tabSelect ${tab?.position}")
                 tab?.let {
                     viewModel.tabSelectAction(it.position)
-                    binding.rvFollow.smoothScrollToPosition(0)
+
                 }
 
             }
