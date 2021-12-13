@@ -1,5 +1,6 @@
 package com.example.instacleaner.utils
 
+import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.example.instacleaner.R
@@ -8,7 +9,7 @@ import com.google.android.material.textview.MaterialTextView
 import java.lang.StringBuilder
 
 @BindingAdapter("imageUrl")
-fun loadImage(view: ShapeableImageView, url: String?) {
+fun loadImage(view: ImageView, url: String?) {
     if (!url.isNullOrEmpty()) {
         Glide.with(view.context).load(url).into(view)
     }

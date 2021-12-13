@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.instacleaner.ui.viewModels.FollowViewModel" />
+    </data>
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
         <com.google.android.material.tabs.TabLayout
+            android:id="@+id/follow_tab"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/circle_bg"
@@ -17,6 +27,7 @@
             android:layout_marginTop="@dimen/distance_small"
             android:layout_marginEnd="@dimen/distance_medium"
             android:layout_marginStart="@dimen/distance_medium"
+
             >
 
             <com.google.android.material.tabs.TabItem
@@ -24,6 +35,7 @@
                 android:layout_height="match_parent"
                 android:text="@string/followers"
                 android:background="@drawable/circle_bg"
+
                 />
 
             <com.google.android.material.tabs.TabItem
@@ -34,6 +46,30 @@
                 />
 
         </com.google.android.material.tabs.TabLayout>
+
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_follow"
+            app:layout_constraintTop_toBottomOf="@+id/follow_tab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/distance_medium"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="4"
+            tools:listitem="@layout/row_follow"
+            />
+
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="@{viewModel.loadingVisibility}"
+            />
 
 
 

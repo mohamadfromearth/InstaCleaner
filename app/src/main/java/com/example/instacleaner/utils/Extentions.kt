@@ -1,9 +1,16 @@
 package com.example.instacleaner.utils
 
+import android.graphics.Typeface
+import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.instacleaner.App
 import com.example.instacleaner.BuildConfig
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Response
 
 
@@ -49,8 +56,54 @@ fun Any?.translateNumber():String{
 }
 
 
+fun Fragment.showSnackBar(message:String){
+    Snackbar.make(requireView(),message,Snackbar.LENGTH_SHORT).show()
+}
+
+
 fun log(text:String){
     if (BuildConfig.DEBUG){
         Log.d("Mohamad", text)
     }
+}
+
+
+fun ViewGroup.setChildTypeface(typeface: Typeface?) {
+    for (i in 0 until childCount) {
+        val view = getChildAt(i)
+        if (view is TextView) {
+            view.typeface = typeface
+        }
+    }
+}
+
+fun ViewGroup.setChildTextSize(size: Float) {
+    for (i in 0 until childCount) {
+        val view = getChildAt(i)
+        if (view is TextView) {
+            view.textSize = convertSPtoPX(size).toFloat()
+        }
+    }
+}
+
+
+fun convertPXtoSP(px: Float): Float {
+    return px / App.getInstance().resources.displayMetrics.scaledDensity
+}
+
+fun convertDPtoPX(dp: Float): Float {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, App.getInstance().resources.displayMetrics)
+}
+
+fun convertPXtoDP(px: Float): Float {
+    return px / (App.getInstance().resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+fun convertSPtoPX(sp: Float): Int {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, App.getInstance().resources.displayMetrics)
+        .toInt()
+}
+
+fun convertDPtoSP(dp: Float): Int {
+    return (convertDPtoPX(dp) / App.getInstance().resources.displayMetrics.scaledDensity).toInt()
 }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
 import com.example.instacleaner.App
+import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Constance.APPLICATION_SHARE_PREF
 import com.example.instacleaner.utils.PreferenceManager

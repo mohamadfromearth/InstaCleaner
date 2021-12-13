@@ -1,6 +1,7 @@
 package com.example.instacleaner.di
 
 import com.example.instacleaner.data.InstaApi
+import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.Constance.ACCEPT_ENCODING
 import com.example.instacleaner.utils.Constance.ACCEPT_ENCODING_KEY
 import com.example.instacleaner.utils.Constance.ACCEPT_LANGUAGE_KEY
@@ -125,5 +126,10 @@ object ApiModule {
             .build()
             .create(InstaApi::class.java)
     }
+
+
+    @Provides
+    @Singleton
+    fun providesInstaRepository(instaApi: InstaApi) = InstaRepository(instaApi)
 
 }
