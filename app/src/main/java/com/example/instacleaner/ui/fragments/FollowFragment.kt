@@ -46,6 +46,9 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
 
     }
 
+
+
+
     private fun init(){
         binding.rvFollow.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -53,11 +56,15 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
                 if(recyclerView.computeVerticalScrollExtent() +
                 recyclerView.computeVerticalScrollOffset() >
                 recyclerView.computeVerticalScrollRange() - 100
-                        ){
+                    &&recyclerView.layoutManager?.itemCount!! > 100){
                     viewModel.paginate()
                 }
             }
         })
+        if (viewModel.isAccountChange()){
+            viewModel.getFollowers()
+            viewModel.getFollowings()
+        }
     }
 
 
@@ -87,6 +94,8 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
         val tp = ResourcesCompat.getFont(requireContext(), R.font.iran_sans_web_medium)
         binding.followTab.getTabAt(0)?.view?.setChildTypeface(tp)
         binding.followTab.getTabAt(1)?.view?.setChildTypeface(tp)
+        val currentTab = binding.followTab.getTabAt(viewModel.tabIndex)
+        binding.followTab.selectTab(currentTab)
         binding.followTab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 log("tabSelect ${tab?.position}")

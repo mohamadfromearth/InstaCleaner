@@ -35,6 +35,9 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
     }
 
 
+    fun getCurrentAccountId() = currentAccount
+
+
 
      fun updateAccount(user: User,callback:(accounts:ArrayList<Account>)->Unit){
          accounts.first { it.user.pk == user.pk }.user = user

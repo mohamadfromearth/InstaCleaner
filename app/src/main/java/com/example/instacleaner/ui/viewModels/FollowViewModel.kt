@@ -25,7 +25,10 @@ class FollowViewModel @Inject constructor(
     private var isRequesting = false
     private var followersLoadingVisibility = false
     private var followingLoadingVisibility = false
-    private var tabIndex = 0
+    private var maxId = ""
+    private var currentAccount = accountManager.getCurrentAccount()
+
+    var tabIndex = 0
     private val followerList = arrayListOf<User>()
     private val followingList = arrayListOf<User>()
 
@@ -33,7 +36,7 @@ class FollowViewModel @Inject constructor(
 
 
     val adapterList = MutableLiveData<ArrayList<User>>()
-    private var maxId = ""
+
 
 
 
@@ -41,6 +44,20 @@ class FollowViewModel @Inject constructor(
         getFollowers()
          getFollowings()
     }
+
+
+    fun isAccountChange():Boolean {
+        return if (currentAccount.user.pk != accountManager.getCurrentAccountId()){
+            currentAccount = accountManager.getCurrentAccount()
+            followerList.clear()
+            followingList.clear()
+            true
+        }else{
+            false
+        }
+    }
+
+
 
 
     fun paginate() {
@@ -71,7 +88,7 @@ class FollowViewModel @Inject constructor(
     }
 
 
-    private fun getFollowings() = viewModelScope.launch {
+     fun getFollowings() = viewModelScope.launch {
         followingLoadingVisibility = true
         setLoading()
         when (val result = repository.getFollowing(accountManager.getCurrentAccount())) {
