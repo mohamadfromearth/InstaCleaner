@@ -21,6 +21,8 @@ class FollowViewModel @Inject constructor(
     private val repository: InstaRepository,
     ) : ViewModel() {
 
+    var shouldScroll = false
+    private var isRequesting = false
     private var followersLoadingVisibility = false
     private var followingLoadingVisibility = false
     private var tabIndex = 0
@@ -30,36 +32,39 @@ class FollowViewModel @Inject constructor(
     val loadingVisibility = ObservableInt(View.GONE)
 
 
-    val adapterList = MutableLiveData<Pair<ArrayList<User>,Boolean>>()
+    val adapterList = MutableLiveData<ArrayList<User>>()
     private var maxId = ""
 
 
 
     init {
         getFollowers()
-        // getFollowings()
+         getFollowings()
     }
 
 
     fun paginate() {
-         if (tabIndex == 0){
+         if (tabIndex == 0 && !isRequesting){
              getFollowers()
          }
     }
 
     fun getFollowers() = viewModelScope.launch {
         followersLoadingVisibility = true
+        isRequesting = true
         setLoading()
         when (val result = repository.getFollower(accountManager.getCurrentAccount(), maxId)) {
             is Resource.Success -> {
+                isRequesting = false
                 followersLoadingVisibility = false
-                followerList.users.addAll(result.data!!.users)
+                followerList.addAll(result.data!!.users)
                 // log("max_idh: ${result.data.next_max_id}")
                 maxId = result.data.next_max_id ?: ""
                 setLoading()
                 setList()
             }
             is Resource.Error -> {
+                isRequesting = false
                 followersLoadingVisibility = false
             }
         }
@@ -72,8 +77,8 @@ class FollowViewModel @Inject constructor(
         when (val result = repository.getFollowing(accountManager.getCurrentAccount())) {
             is Resource.Success -> {
                 followingLoadingVisibility = false
-                followingList.users.addAll(result.data!!.users)
-                setList(false)
+                followingList.addAll(result.data!!.users)
+                setList()
                 setLoading()
             }
             is Resource.Error -> {
@@ -90,12 +95,17 @@ class FollowViewModel @Inject constructor(
         }
     }
 
-    private fun setList(returnToTop : Boolean) {
+    private fun setList() {
         if (tabIndex == 0) {
-            adapterList.value = followerList to returnToTop
+
+            adapterList.value = followerList
+
         } else {
-            adapterList.value = followingList to returnToTop
+
+            adapterList.value = followingList
+
         }
+
     }
 
 
@@ -108,9 +118,11 @@ class FollowViewModel @Inject constructor(
     }
 
     fun tabSelectAction(position: Int) {
+        shouldScroll = true
         tabIndex = position
         setLoading()
-        setList(true)
+        setList()
+
 
     }
 

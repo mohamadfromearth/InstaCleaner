@@ -50,10 +50,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
         binding.rvFollow.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-//               log("paging:${recyclerView.computeVerticalScrollExtent()}\t${recyclerView.computeVerticalScrollOffset()}\t${recyclerView.computeVerticalScrollRange()}")
-//               log("paging: ${recyclerView.computeVerticalScrollOffset()}")
-               // 10282
-//                log("paging h: ${recyclerView.computeVerticalScrollRange()}")
                 if(recyclerView.computeVerticalScrollExtent() +
                 recyclerView.computeVerticalScrollOffset() >
                 recyclerView.computeVerticalScrollRange() - 100
@@ -67,9 +63,12 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
 
     private fun subscribeToObservers(){
         viewModel.adapterList.observe(viewLifecycleOwner,{
-            adapter.submitList(it.users.toList()) {
-              //  if (it.hasPaginate)
-                     // binding.rvFollow.smoothScrollToPosition(0)
+            adapter.submitList(it.toList()) {
+                      if (viewModel.shouldScroll){
+                          binding.rvFollow.scrollToPosition(0)
+                          viewModel.shouldScroll = false
+                      }
+
             }
         })
 
