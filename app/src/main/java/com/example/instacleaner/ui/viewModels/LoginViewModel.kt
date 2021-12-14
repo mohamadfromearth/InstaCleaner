@@ -35,6 +35,8 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
 
     val invalidCookie = SingleLiveEvent<String>()
 
+    val exist = SingleLiveEvent<Boolean>()
+
 //    val popToHome = SingleLiveEvent<Boolean>()
 
 
@@ -72,14 +74,16 @@ class LoginViewModel @Inject constructor(private val accountManager: AccountMana
     }
 
 
-    fun popToHomeFragment(){
-       navToHome.value = false
+    fun navToHome(){
+        navToHome.value = false
     }
 
     private fun getCookie(url:String) = CookieManager.getInstance().getCookie(url)
 
 
-
+    fun backPress() {
+       if (accountManager.isLogin()) navToHome.value = false else exist.value = true
+    }
 
 
 }

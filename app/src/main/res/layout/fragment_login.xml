@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:elevation="1dp"
             android:visibility="@{viewModel.backBtnVisibility}"
-            android:onClick="@{() -> viewModel.popToHomeFragment()}"
+            android:onClick="@{() -> viewModel.navToHome()}"
             />
 
         <WebView

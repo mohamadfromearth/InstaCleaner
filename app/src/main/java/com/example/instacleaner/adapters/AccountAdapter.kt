@@ -23,11 +23,6 @@ class AccountAdapter(
 ) : ListAdapter<Account,ViewHolder>(DiffCallback()) {
 
 
-
-
-
-
-
     inner class AccountViewHolder(private val binding: RowAccountBinding) :
         ViewHolder(binding.root) {
         fun bind(account: Account) {
@@ -60,7 +55,7 @@ class AccountAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
        log("viewType$viewType")
        log("size${currentList.size}")
-        return if (viewType == currentList.size) {
+        return if (viewType == currentList.size && currentList.isNotEmpty()) {
             AddAccountViewHolder(
                 DataBindingUtil.inflate(
                     LayoutInflater.from(parent.context),

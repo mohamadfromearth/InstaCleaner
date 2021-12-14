@@ -6,15 +6,16 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:padding="10dp"
+
         >
 
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             app:srcCompat="@drawable/ic_add_user"
             android:scaleType="centerCrop"
+            android:padding="6dp"
             />
 
 

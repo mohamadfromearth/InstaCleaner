@@ -13,7 +13,7 @@ data class User(
     val profile_pic_url: String = "",
     val username: String = "",
     val is_verified: Boolean = false,
-    var isSelected:Boolean = false
+    val isSelected:Boolean = false
 ) {
     companion object {
         fun ArrayList<User>.cloned() = ArrayList(map { it.copy() })

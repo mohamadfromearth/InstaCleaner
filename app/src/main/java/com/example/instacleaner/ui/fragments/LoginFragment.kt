@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -38,15 +39,27 @@ class LoginFragment:Fragment(R.layout.fragment_login) {
         nav = findNavController()
         setWebView()
         subscribeToObservers()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    viewModel.backPress()
+                }
+
+            })
+
     }
+
+
+
 
     private fun subscribeToObservers(){
         viewModel.navToHome.observe(viewLifecycleOwner,{
             nav.previousBackStackEntry?.savedStateHandle?.set(PREF_USER_INDEX, it)
             nav.popBackStack()
         })
-        viewModel.invalidCookie.observe(viewLifecycleOwner, {
-            showToast(it)
+        viewModel.exist.observe(viewLifecycleOwner,{
+            requireActivity().finishAffinity()
         })
     }
 

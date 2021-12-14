@@ -6,4 +6,11 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="circleImageViewWithStroke" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+        <item name="strokeWidth">4dp</item>
+        <item name="strokeColor">@color/md_blue_400</item>
+    </style>
+
 </resources>

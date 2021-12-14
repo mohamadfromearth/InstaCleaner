@@ -26,6 +26,10 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
 
     }
 
+    fun getCurrentAccountId() = prefManager.getLong(CURRENT_ACCOUNT)
+
+
+
     fun setCurrentAccount(userId:Long){
         prefManager.set(CURRENT_ACCOUNT,userId)
     }
@@ -35,7 +39,20 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
     }
 
 
-    fun getCurrentAccountId() = currentAccount
+     fun removeAccount():ArrayList<Account>{
+         accounts.remove(getCurrentAccount())
+         if (accounts.size != 0){
+             currentAccount = accounts[0].user.pk
+             prefManager.set(CURRENT_ACCOUNT,currentAccount)
+             updateAccountHelper(accounts)
+             return accounts
+         }else{
+             prefManager.clear()
+             return accounts
+         }
+
+
+     }
 
 
 
@@ -46,6 +63,8 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
          updateAccountHelper(accounts)
          callback(accounts)
      }
+
+
 
     private fun updateAccountHelper(accounts:ArrayList<Account>){
         val accountsJson = Gson().toJson(accounts)

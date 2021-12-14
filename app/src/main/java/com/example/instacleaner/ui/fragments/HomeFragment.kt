@@ -11,6 +11,7 @@ import com.example.instacleaner.R
 import com.example.instacleaner.adapters.AccountAdapter
 import com.example.instacleaner.data.local.Account.Companion.cloned
 import com.example.instacleaner.databinding.FragmentHomeBinding
+import com.example.instacleaner.ui.dialog.LogoutDialog
 import com.example.instacleaner.ui.viewModels.HomeViewModel
 import com.example.instacleaner.utils.Constance
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,7 +48,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToLoginFragment())
         })
         viewModel.accounts.observe(viewLifecycleOwner, {
-
+                binding.rvAccount.recycledViewPool.clear()
+            setUpRecyclerView()
             accountAdapter.submitList(it.cloned())
         })
 
@@ -58,14 +60,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             }
 
+
+        viewModel.exit.observe(viewLifecycleOwner,{
+           requireActivity().finishAffinity()
+        })
+        viewModel.dialogShow.observe(viewLifecycleOwner,{
+           LogoutDialog(){
+               viewModel.approveLogout()
+           }.show(childFragmentManager,"")
+        })
+
+
+
     }
 
 
     private fun setUpRecyclerView() {
         accountAdapter = AccountAdapter({ position, account ->
-            viewModel.onAccountClick(account, position)
+            viewModel.accountClick(account, position)
         }) {
-            viewModel.onAddAccountClick()
+            viewModel.addAccountClick()
         }
         binding.rvAccount.adapter = accountAdapter
     }

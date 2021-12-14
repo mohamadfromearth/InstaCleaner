@@ -1,7 +1,6 @@
 package com.example.instacleaner.ui.viewModels
 
 
-
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -9,12 +8,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instacleaner.data.local.Account
+import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Resource
 import com.example.instacleaner.utils.SingleLiveEvent
 import com.example.instacleaner.utils.translateNumber
-import com.example.instacleaner.data.remote.response.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,25 +32,31 @@ class HomeViewModel @Inject constructor(
     val postCount = ObservableField("-")
 
     val navigateToLogin = SingleLiveEvent<Boolean>()
+    val dialogShow = SingleLiveEvent<Boolean>()
+    val exit = SingleLiveEvent<Boolean>()
     val accounts = MutableLiveData<ArrayList<Account>>()
+
 
     val errorMessage = SingleLiveEvent<String>()
 
     init {
 
 
-
-        if(accountManager.isLogin()) getUserInfo(accountManager.getCurrentAccount()) else navigateToLogin.value = true
-
+        if (accountManager.isLogin()) getUserInfo(accountManager.getCurrentAccount()) else navigateToLogin.value =
+            true
 
 
     }
 
-    fun login(){
-        getUserInfo(accountManager.getCurrentAccount())
+    fun login() {
+        if (accountManager.getAccounts().isEmpty()) {
+            exit.value = true
+        } else {
+            getUserInfo(accountManager.getCurrentAccount())
+        }
     }
 
-   private fun getUserInfo(account: Account) = viewModelScope.launch {
+    private fun getUserInfo(account: Account) = viewModelScope.launch {
 //        if (account == null) accountManager.refreshSharePreferenceValue()
 //        val acc = account ?: getAccount()
         loadingVisibility.set(View.VISIBLE)
@@ -77,16 +82,27 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun onAccountClick(account: Account, position: Int) {
+    fun accountClick(account: Account, position: Int) {
+        if (accountManager.getCurrentAccount() == account) return
         getUserInfo(account)
     }
 
-    fun onAddAccountClick() {
+    fun addAccountClick() {
         navigateToLogin.value = true
     }
 
+    fun logoutClick() {
+        dialogShow.value = true
+    }
+
+    fun approveLogout() {
+        accountManager.removeAccount().apply {
+            if (size != 0) getUserInfo(accountManager.getCurrentAccount())
+            else navigateToLogin.value = true
+        }
 
 
+    }
 
 
 }

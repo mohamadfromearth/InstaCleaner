@@ -56,15 +56,12 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
                 if(recyclerView.computeVerticalScrollExtent() +
                 recyclerView.computeVerticalScrollOffset() >
                 recyclerView.computeVerticalScrollRange() - 100
-                    &&recyclerView.layoutManager?.itemCount!! > 100){
+                    ){
                     viewModel.paginate()
                 }
             }
         })
-        if (viewModel.isAccountChange()){
-            viewModel.getFollowers()
-            viewModel.getFollowings()
-        }
+        viewModel.onStart()
     }
 
 
@@ -83,8 +80,8 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
 
 
     private fun setUpRecyclerView() {
-        adapter = FollowAdapter(){
-
+        adapter = FollowAdapter(){ pos,user ->
+             viewModel.onItemClickAction(pos,user)
         }
         binding.rvFollow.adapter = adapter
     }
