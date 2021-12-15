@@ -24,7 +24,7 @@
             android:scaleType="centerCrop"
             imageUrl="@{account.user.profile_pic_url}"
             android:padding="6dp"
-            app:strokeWidth="@{account.selected ? @dimen/distance_medium : @dimen/distance_null}"
+            app:strokeColor="@color/colorPrimaryDark"
             />
 
 

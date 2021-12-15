@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instacleaner.data.local.Account
+import com.example.instacleaner.data.local.Account.Companion.cloned
 import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
@@ -68,9 +69,15 @@ class HomeViewModel @Inject constructor(
                     followerCount.set(it.user.follower_count.translateNumber())
                     followingCount.set(it.user.following_count.translateNumber())
                     postCount.set(it.user.media_count.translateNumber())
-                    accountManager.updateAccount(it.user) { accountList ->
-                        accounts.value = accountList
-                    }
+                    accounts.value = accountManager.updateAccount(it.user)
+
+
+//                        accountManager.saveAccount()
+//                        val listOfAccount = accountList.cloned()
+//                        listOfAccount.first { it.user.pk == accountManager.getCurrentAccountId() }.isSelected = true
+                        // accountList.first { it.user.pk == accountManager.getCurrentAccountId()}.isSelected = true
+//                        accounts.value = listOfAccount
+
                 }
 
             }

@@ -26,9 +26,10 @@ class AccountAdapter(
     inner class AccountViewHolder(private val binding: RowAccountBinding) :
         ViewHolder(binding.root) {
         fun bind(account: Account) {
-            log("HOLDER:NORMAL")
+            log("HOLDER:NORMAL${account.isSelected}")
             binding.apply {
                 setAccount(account)
+                ivProfile.strokeWidth = if(account.isSelected) 8F else 0F
                 root.setOnClickListener {
                     onAccountClick(bindingAdapterPosition, account)
                 }

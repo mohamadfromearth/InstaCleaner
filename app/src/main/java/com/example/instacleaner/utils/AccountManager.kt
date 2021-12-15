@@ -35,6 +35,7 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
     }
 
      fun getAccounts():ArrayList<Account>{
+         accounts.forEach { it.isSelected = it.user.pk == currentAccount }
         return accounts
     }
 
@@ -56,14 +57,20 @@ class AccountManager@Inject constructor(private  val prefManager:PreferenceManag
 
 
 
-     fun updateAccount(user: User,callback:(accounts:ArrayList<Account>)->Unit){
+     fun updateAccount(user: User) : ArrayList<Account> {
          accounts.first { it.user.pk == user.pk }.user = user
          currentAccount = user.pk
          prefManager.set(CURRENT_ACCOUNT,currentAccount)
-         updateAccountHelper(accounts)
-         callback(accounts)
+        saveAccount()
+         return getAccounts()
      }
 
+
+
+    fun saveAccount(){
+        val accountsJson = Gson().toJson(accounts)
+        prefManager.set(ACCOUNT,accountsJson)
+    }
 
 
     private fun updateAccountHelper(accounts:ArrayList<Account>){

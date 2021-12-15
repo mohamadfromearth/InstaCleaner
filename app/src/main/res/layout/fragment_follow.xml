@@ -48,10 +48,33 @@
         </com.google.android.material.tabs.TabLayout>
 
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/follow_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_medium"
+            app:layout_constraintTop_toBottomOf="@+id/follow_tab"
+            android:layout_marginTop="@dimen/distance_small"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:srcCompat="@drawable/ic_filter"
+                android:layout_margin="@dimen/distance_too_small"
+                />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_follow"
-            app:layout_constraintTop_toBottomOf="@+id/follow_tab"
+            app:layout_constraintTop_toBottomOf="@+id/follow_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/distance_medium"

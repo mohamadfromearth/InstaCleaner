@@ -27,8 +27,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
     private val viewModel:FollowViewModel by viewModels()
 
 
-    @Inject
-    lateinit var app: App
 
     private var _binding: FragmentFollowBinding? = null
     private val binding: FragmentFollowBinding
