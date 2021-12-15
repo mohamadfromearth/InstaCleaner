@@ -6,9 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instacleaner.App
+import com.example.instacleaner.R
+import com.example.instacleaner.data.local.dialogModel.DialogModel
+import com.example.instacleaner.data.local.dialogModel.Tab
 import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.data.remote.response.User.Companion.cloned
-import com.example.instacleaner.data.remote.response.userFollowers.UserList
 import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Resource
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class FollowViewModel @Inject constructor(
     private val accountManager: AccountManager,
     private val repository: InstaRepository,
+    private val app:App,
     ) : ViewModel() {
 
     var shouldScroll = false
@@ -39,7 +42,7 @@ class FollowViewModel @Inject constructor(
 
 
     val adapterList = MutableLiveData<ArrayList<User>>()
-    val showFilterDialog = SingleLiveEvent<Boolean>()
+    val showFilterDialog = SingleLiveEvent<ArrayList<DialogModel>>()
 
 
 
@@ -146,6 +149,34 @@ class FollowViewModel @Inject constructor(
         }
     }
 
+
+
+
+    private fun followingDialogList() =
+        arrayListOf(
+            DialogModel(listOf(Tab(app.getString(R.string.private_)),Tab(app.getString(R.string.public_))),app.getString(R.string.by_status)),
+            DialogModel(listOf(Tab(app.getString(R.string.no_pic)),Tab(app.getString(R.string.has_pic))),app.getString(R.string.by_profile_picture)),
+            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify)),
+           // DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
+            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection)),
+            DialogModel(listOf(Tab(app.getString(R.string.they_following_back)),Tab(app.getString(R.string.they_not_following_back))),app.getString(R.string.by_followback)),
+            DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter))
+
+        )
+
+    private fun followerDialogList() =
+        arrayListOf(
+            DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status)),
+            DialogModel(listOf(Tab(app.getString(R.string.no_pic)),Tab(app.getString(R.string.has_pic))),app.getString(R.string.by_profile_picture)),
+            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
+            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
+            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection)),
+            DialogModel(listOf(Tab(app.getString(R.string.i_following_back)),Tab(app.getString(R.string.i_not_following_back))),app.getString(R.string.by_followback)),
+            DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter))
+        )
+
+
+
     fun tabSelectAction(position: Int) {
         shouldScroll = true
         tabIndex = position
@@ -156,7 +187,7 @@ class FollowViewModel @Inject constructor(
     }
 
     fun btnFilterAction() {
-        showFilterDialog.value = true
+     if (tabIndex == 0) showFilterDialog.value =  followerDialogList() else showFilterDialog.value = followingDialogList()
     }
 
 }

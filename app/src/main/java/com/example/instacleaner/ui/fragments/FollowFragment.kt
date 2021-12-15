@@ -12,6 +12,7 @@ import com.example.instacleaner.App
 import com.example.instacleaner.R
 import com.example.instacleaner.adapters.FollowAdapter
 import com.example.instacleaner.databinding.FragmentFollowBinding
+import com.example.instacleaner.ui.dialog.MainDialog
 import com.example.instacleaner.ui.viewModels.FollowViewModel
 import com.example.instacleaner.utils.log
 import com.example.instacleaner.utils.setChildTypeface
@@ -76,6 +77,12 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
                       }
 
             }
+        })
+
+        viewModel.showFilterDialog.observe(viewLifecycleOwner,{
+            MainDialog(it){
+
+            }.show(childFragmentManager,"")
         })
 
     }

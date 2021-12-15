@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    //distances
     <attr name="colorPrimaryLight" format="reference" />
     <attr name="colorBackground0" format="reference" />
     <attr name="colorBackground1" format="reference" />
@@ -19,7 +21,24 @@
     <dimen name="distance_too_large">32dp</dimen>
     <dimen name="distance_big">62dp</dimen>
 
+
+    //sizes
     <dimen name="size_medium">40dp</dimen>
+
+
+    //textSize
+    <dimen name="text_size_too_small">10sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_too_medium">14sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_too_large">20sp</dimen>
+    <dimen name="text_size_big">22sp</dimen>
+    <dimen name="text_size_too_big">24sp</dimen>
+
+
+
+
 
 
 </resources>
