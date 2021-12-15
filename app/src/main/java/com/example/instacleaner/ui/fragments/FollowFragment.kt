@@ -60,6 +60,10 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
             }
         })
         viewModel.onStart()
+
+        binding.btnFilter.setOnClickListener {
+            viewModel.btnFilterAction()
+        }
     }
 
 

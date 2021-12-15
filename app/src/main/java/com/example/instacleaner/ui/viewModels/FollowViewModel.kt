@@ -12,6 +12,7 @@ import com.example.instacleaner.data.remote.response.userFollowers.UserList
 import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
 import com.example.instacleaner.utils.Resource
+import com.example.instacleaner.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,10 +34,12 @@ class FollowViewModel @Inject constructor(
     private val followerList = arrayListOf<User>()
     private val followingList = arrayListOf<User>()
 
+
     val loadingVisibility = ObservableInt(View.GONE)
 
 
     val adapterList = MutableLiveData<ArrayList<User>>()
+    val showFilterDialog = SingleLiveEvent<Boolean>()
 
 
 
@@ -150,6 +153,10 @@ class FollowViewModel @Inject constructor(
         setList()
 
 
+    }
+
+    fun btnFilterAction() {
+        showFilterDialog.value = true
     }
 
 }
