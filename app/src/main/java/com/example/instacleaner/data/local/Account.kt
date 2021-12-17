@@ -10,6 +10,6 @@ data class Account(
 ) {
     companion object {
         fun ArrayList<Account>.cloned() = ArrayList(map { it.copy(user = it.user.copy()) })
-        fun List<Account>.clonedx() = ArrayList(map { it.copy() })
+        fun List<Account>.cloned() = ArrayList(map { it.copy() })
     }
 }

@@ -80,8 +80,8 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
         })
 
         viewModel.showFilterDialog.observe(viewLifecycleOwner,{
-            MainDialog(it){
-
+            MainDialog(it){ dialogModel ->
+             viewModel.filter(dialogModel)
             }.show(childFragmentManager,"")
         })
 

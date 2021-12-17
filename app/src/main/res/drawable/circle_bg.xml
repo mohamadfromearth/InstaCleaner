@@ -6,8 +6,9 @@
     <item  android:state_selected="false">
         <shape android:shape="rectangle" android:tint="@color/md_blue_50" >
             <corners android:radius="140dp"/>
-
         </shape>
+
+
 
     </item>
 

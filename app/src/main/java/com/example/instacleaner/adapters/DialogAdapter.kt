@@ -8,35 +8,47 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instacleaner.R
-import com.example.instacleaner.data.local.dialogModel.DialogModel
+import com.example.instacleaner.data.local.DialogModel
+
 import com.example.instacleaner.databinding.RowDialogBinding
 
-class DialogAdapter(private val onClick:(dialogModel:DialogModel)->Unit):ListAdapter<DialogModel,DialogAdapter.DialogViewHolder>(DiffCallback()){
+class DialogAdapter:ListAdapter<DialogModel,DialogAdapter.DialogViewHolder>(DiffCallback()){
 
 
 
-    inner class DialogViewHolder(private val binding: RowDialogBinding):RecyclerView.ViewHolder(binding.root){
+    inner class DialogViewHolder(val binding: RowDialogBinding):RecyclerView.ViewHolder(binding.root){
         fun bind(dialogModel: DialogModel){
          binding.apply {
              setDialogModel(dialogModel)
-             root.setOnClickListener {
-                 onClick(currentList[bindingAdapterPosition])
+             materialTextView.setOnClickListener {
+                 onItemClick?.let {
+                     it(dialogModel,bindingAdapterPosition)
+                 }
              }
+             if (dialogModel.isSelected) dialogCard.setBackgroundResource(R.drawable.border) else dialogCard.setBackgroundResource(R.color.white)
+
          }
         }
     }
 
 
 
-    private class DiffCallback : DiffUtil.ItemCallback<DialogModel>() {
+
+     var onItemClick:((dialogmodel:DialogModel,pos:Int)-> Unit)?  = null
 
 
-        override fun areItemsTheSame(oldItem: DialogModel, newItem: DialogModel) =
-            oldItem == newItem
+
+    companion object{
+        class DiffCallback : DiffUtil.ItemCallback<DialogModel>() {
 
 
-        override fun areContentsTheSame(oldItem: DialogModel, newItem: DialogModel) =
-            oldItem == newItem
+            override fun areItemsTheSame(oldItem: DialogModel, newItem: DialogModel) =
+                oldItem == newItem
+
+
+            override fun areContentsTheSame(oldItem: DialogModel, newItem: DialogModel) =
+                oldItem == newItem
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DialogViewHolder {
@@ -49,7 +61,7 @@ class DialogAdapter(private val onClick:(dialogModel:DialogModel)->Unit):ListAda
     }
 
     override fun onBindViewHolder(holder: DialogViewHolder, position: Int) {
-        holder.bind(currentList[position])
+       holder.bind(currentList[position])
     }
 
 

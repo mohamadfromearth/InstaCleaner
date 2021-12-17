@@ -7,7 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instacleaner.App
 import com.example.instacleaner.R
-import com.example.instacleaner.data.local.dialogModel.DialogModel
+import com.example.instacleaner.data.local.DialogModel
+
 import com.example.instacleaner.data.local.dialogModel.Tab
 import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.data.remote.response.User.Companion.cloned
@@ -28,6 +29,7 @@ class FollowViewModel @Inject constructor(
 
     var shouldScroll = false
     private var isRequesting = false
+    private var hasFilter = false
     private var followersLoadingVisibility = false
     private var followingLoadingVisibility = false
     private var maxId = ""
@@ -36,13 +38,14 @@ class FollowViewModel @Inject constructor(
     var tabIndex = 0
     private val followerList = arrayListOf<User>()
     private val followingList = arrayListOf<User>()
-
+    private var followerFilteredList = arrayListOf<User>()
+    private var followingFilteredList = arrayListOf<User>()
 
     val loadingVisibility = ObservableInt(View.GONE)
 
 
     val adapterList = MutableLiveData<ArrayList<User>>()
-    val showFilterDialog = SingleLiveEvent<ArrayList<DialogModel>>()
+    val showFilterDialog = SingleLiveEvent<Pair<String,ArrayList<DialogModel>>>()
 
 
 
@@ -128,15 +131,18 @@ class FollowViewModel @Inject constructor(
     }
 
     private fun setList() {
-        if (tabIndex == 0) {
+       if (hasFilter.not()){
+           if (tabIndex == 0) {
 
-            adapterList.value = followerList
+               adapterList.value = followerList
 
-        } else {
+           } else {
 
-            adapterList.value = followingList
+               adapterList.value = followingList
 
-        }
+           }
+       }
+
 
     }
 
@@ -169,7 +175,6 @@ class FollowViewModel @Inject constructor(
             DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status)),
             DialogModel(listOf(Tab(app.getString(R.string.no_pic)),Tab(app.getString(R.string.has_pic))),app.getString(R.string.by_profile_picture)),
             DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
-            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
             DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection)),
             DialogModel(listOf(Tab(app.getString(R.string.i_following_back)),Tab(app.getString(R.string.i_not_following_back))),app.getString(R.string.by_followback)),
             DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter))
@@ -187,7 +192,75 @@ class FollowViewModel @Inject constructor(
     }
 
     fun btnFilterAction() {
-     if (tabIndex == 0) showFilterDialog.value =  followerDialogList() else showFilterDialog.value = followingDialogList()
+     if (tabIndex == 0) showFilterDialog.value =  Pair(app.getString(R.string.filter),followerDialogList()) else showFilterDialog.value = Pair(app.getString(R.string.filter),followingDialogList())
     }
+
+
+    fun filter(dialogModel:DialogModel){
+        val filterTabIndex = dialogModel.tabs.indexOf(dialogModel.tabs.find { it.isSelected })
+        val currentList = if (filterTabIndex == 0) followerList else followingList
+
+        when(dialogModel.title){
+            app.getString(R.string.by_status) -> {
+                when(filterTabIndex){
+                    0 ->{
+
+
+                    }
+                    1 ->{
+
+                    }
+                }
+
+            }
+            app.getString(R.string.by_profile_picture) -> {
+                when(filterTabIndex){
+                    0 ->{
+
+                    }
+                    1 ->{
+
+                    }
+                }
+
+            }
+            app.getString(R.string.by_verify) -> {
+                when(filterTabIndex){
+                    0 ->{
+
+                    }
+                    1 ->{
+
+                    }
+                }
+
+            }
+            app.getString(R.string.by_selection) -> {
+                when(filterTabIndex){
+                    0 ->{
+
+                    }
+                    1 ->{
+
+                    }
+                }
+
+            }
+            app.getString(R.string.by_followback) -> {
+                when(filterTabIndex){
+                    0 ->{
+
+                    }
+                    1 ->{
+
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
 
 }
