@@ -111,12 +111,19 @@ class MainDialog(
     }
 
     private  fun setDataToViews(){
-       val dialogModelList =dialogModels.second
-        dialogModelList[0].isSelected = true
-        val tab1 = binding.dialogTab.newTab().setText(dialogModelList[0].tabs[0].title)
-        val tab2 = binding.dialogTab.newTab().setText(dialogModelList[0].tabs[1].title)
-        binding.dialogTab.addTab(tab1)
-        binding.dialogTab.addTab(tab2)
+       val dialogModel =dialogModels.second.first{it.isSelected}
+        if (dialogModel.tabs.size > 1){
+            val tab1 = binding.dialogTab.newTab().setText(dialogModel.tabs[0].title)
+            val tab2 = binding.dialogTab.newTab().setText(dialogModel.tabs[1].title)
+            binding.dialogTab.addTab(tab1)
+            binding.dialogTab.addTab(tab2)
+        }else{
+            binding.dialogTab.setBackgroundResource(R.drawable.bg_single_tab)
+            val tab1 = binding.dialogTab.newTab().setText(dialogModel.tabs[0].title)
+            binding.dialogTab.addTab(tab1)
+            isSingleTab = true
+        }
+
         dialogAdapter.submitList(dialogModels.second.cloned())
         binding.dialogTitle.text = dialogModels.first
     }

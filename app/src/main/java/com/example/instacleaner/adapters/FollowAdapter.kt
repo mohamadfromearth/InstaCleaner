@@ -1,6 +1,7 @@
 package com.example.instacleaner.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
@@ -16,6 +17,7 @@ class FollowAdapter(private val onUserClick:(pos:Int,user:User) ->Unit): ListAda
           fun bind(user:User){
            binding.apply {
                setUser(user)
+               if (user.isSelected) ivCheck.visibility = View.VISIBLE else ivCheck.visibility = View.GONE
                root.setOnClickListener {
                    onUserClick(bindingAdapterPosition,user)
                }
