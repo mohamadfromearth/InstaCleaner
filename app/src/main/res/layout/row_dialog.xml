@@ -13,7 +13,9 @@
 
    <com.google.android.material.card.MaterialCardView
        android:layout_width="match_parent"
-       android:layout_height="50dp"
+       android:layout_height="40dp"
+       app:cardElevation="0dp"
+       app:cardCornerRadius="20dp"
        android:id="@+id/dialog_card"
 
        >
@@ -38,15 +40,18 @@
              app:layout_constraintEnd_toEndOf="parent"
              app:layout_constraintTop_toTopOf="parent" />
 
-         <ImageView
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             app:layout_constraintBottom_toBottomOf="parent"
-             app:layout_constraintStart_toStartOf="parent"
-             app:layout_constraintTop_toTopOf="parent"
-             app:srcCompat="@drawable/ic_check"
-             android:visibility="gone"
-             />
+
+
+
+<!--         <com.google.android.material.imageview.ShapeableImageView-->
+<!--             android:id="@+id/iv_check"-->
+<!--             android:layout_width="wrap_content"-->
+<!--             android:layout_height="wrap_content"-->
+<!--             app:layout_constraintBottom_toBottomOf="parent"-->
+<!--             app:layout_constraintStart_toStartOf="parent"-->
+<!--             android:tint="@color/md_grey_500"-->
+<!--             app:layout_constraintTop_toTopOf="parent"-->
+<!--             app:srcCompat="@drawable/ic_check_circle" />-->
 
       </androidx.constraintlayout.widget.ConstraintLayout>
 

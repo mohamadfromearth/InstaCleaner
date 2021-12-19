@@ -1,8 +1,10 @@
 package com.example.instacleaner.adapters
 
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,20 +14,26 @@ import com.example.instacleaner.data.local.DialogModel
 
 import com.example.instacleaner.databinding.RowDialogBinding
 
-class DialogAdapter:ListAdapter<DialogModel,DialogAdapter.DialogViewHolder>(DiffCallback()){
+class DialogAdapter(private val onClick : (dialogmodel:DialogModel,pos:Int)-> Unit):ListAdapter<DialogModel,DialogAdapter.DialogViewHolder>(DiffCallback()){
 
 
 
     inner class DialogViewHolder(val binding: RowDialogBinding):RecyclerView.ViewHolder(binding.root){
+        @RequiresApi(Build.VERSION_CODES.M)
         fun bind(dialogModel: DialogModel){
          binding.apply {
              setDialogModel(dialogModel)
              materialTextView.setOnClickListener {
-                 onItemClick?.let {
-                     it(dialogModel,bindingAdapterPosition)
-                 }
+                 onClick(dialogModel,bindingAdapterPosition)
              }
-             if (dialogModel.isSelected) dialogCard.setBackgroundResource(R.drawable.border) else dialogCard.setBackgroundResource(R.color.white)
+             if (dialogModel.isSelected) {
+                 dialogCard.setCardBackgroundColor(binding.root.context.getColor(R.color.colorPrimaryLight))
+
+
+             } else{
+                 dialogCard.setCardBackgroundColor(binding.root.context.getColor(R.color.design_default_color_on_primary))
+                 //ivCheck.setBackgroundResource(R.drawable.ic_check_circle)
+             }
 
          }
         }
@@ -34,7 +42,7 @@ class DialogAdapter:ListAdapter<DialogModel,DialogAdapter.DialogViewHolder>(Diff
 
 
 
-     var onItemClick:((dialogmodel:DialogModel,pos:Int)-> Unit)?  = null
+//     var onItemClick:((dialogmodel:DialogModel,pos:Int)-> Unit) ={}
 
 
 
@@ -60,6 +68,7 @@ class DialogAdapter:ListAdapter<DialogModel,DialogAdapter.DialogViewHolder>(Diff
         ))
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: DialogViewHolder, position: Int) {
        holder.bind(currentList[position])
     }

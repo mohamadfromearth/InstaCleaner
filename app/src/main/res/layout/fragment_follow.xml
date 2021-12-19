@@ -16,13 +16,67 @@
         android:layout_height="match_parent">
 
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/follow_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/colorPrimary"
+            >
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sort"
+                android:layout_width="40dp"
+                android:layout_height="35dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:stateListAnimator="@null"
+                app:icon="@drawable/ic_sort"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:gravity="center"
+                app:iconGravity="textStart"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_filter"
+                android:layout_width="40dp"
+                android:layout_height="35dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:icon="@drawable/ic_filter"
+                app:layout_constraintStart_toEndOf="@+id/btn_sort"
+                android:backgroundTint="@color/colorPrimary"
+                android:layout_margin="@dimen/distance_too_small"
+                android:gravity="center"
+                app:iconGravity="textStart"
+                android:stateListAnimator="@null"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="40dp"
+                android:layout_height="35dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center"
+                app:icon="@drawable/ic_selection"
+                app:iconGravity="textStart"
+                />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/follow_tab"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:background="@drawable/circle_bg"
             app:tabBackground="@drawable/tab_bg"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/follow_app_bar"
             app:tabIndicatorHeight="0dp"
             android:layout_marginTop="@dimen/distance_small"
             android:layout_marginEnd="@dimen/distance_medium"
@@ -50,41 +104,16 @@
         </com.google.android.material.tabs.TabLayout>
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/follow_bar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size_medium"
-            app:layout_constraintTop_toBottomOf="@+id/follow_tab"
-            android:layout_marginTop="@dimen/distance_small"
-            >
-
-            <ImageView
-                android:id="@+id/btn_filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:srcCompat="@drawable/ic_filter"
-                android:layout_margin="@dimen/distance_too_small"
-                />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_follow"
-            app:layout_constraintTop_toBottomOf="@+id/follow_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="@dimen/distance_medium"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/follow_tab"
             app:spanCount="4"
-            tools:listitem="@layout/row_follow"
-            />
+            tools:listitem="@layout/row_follow" />
 
 
         <ProgressBar

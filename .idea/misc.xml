@@ -9,6 +9,11 @@
         <entry key="app/src/main/res/drawable/circle_bg.xml" value="0.375" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.30132788559754853" />
         <entry key="app/src/main/res/drawable/ic_arrow_right.xml" value="0.19074074074074074" />
+        <entry key="app/src/main/res/drawable/ic_check_all_selected.xml" value="0.12962962962962962" />
+        <entry key="app/src/main/res/drawable/ic_check_circle.xml" value="0.21197916666666666" />
+        <entry key="app/src/main/res/drawable/ic_check_circle_selected.xml" value="0.12962962962962962" />
+        <entry key="app/src/main/res/drawable/ic_check_none.xml" value="0.12962962962962962" />
+        <entry key="app/src/main/res/drawable/ic_close.xml" value="0.12962962962962962" />
         <entry key="app/src/main/res/drawable/ray.xml" value="0.30648148148148147" />
         <entry key="app/src/main/res/drawable/tab_bg.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/tab_color_selector.xml" value="0.19074074074074074" />
@@ -21,8 +26,9 @@
         <entry key="app/src/main/res/layout/fragment_more.xml" value="0.1733097880928355" />
         <entry key="app/src/main/res/layout/row_account.xml" value="0.1868164398390476" />
         <entry key="app/src/main/res/layout/row_add_account.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/row_dialog.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/row_dialog.xml" value="0.375" />
         <entry key="app/src/main/res/layout/row_follow.xml" value="0.3211684481914424" />
+        <entry key="app/src/main/res/menu/follow_menu.xml" value="0.19635416666666666" />
         <entry key="app/src/main/res/menu/insta_cleaner_bottom_nav.xml" value="0.3287037037037037" />
       </map>
     </option>

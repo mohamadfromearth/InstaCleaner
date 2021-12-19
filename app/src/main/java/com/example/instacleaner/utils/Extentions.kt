@@ -40,6 +40,9 @@ fun Fragment.showToast(message:String){
 }
 
 
+
+
+
 fun Any?.translateNumber():String{
     val persianNumbers = "۰۱۲۳۴۵۶۷۸۹"
     val englishNumber = "0123456789"

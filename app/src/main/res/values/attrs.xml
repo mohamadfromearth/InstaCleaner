@@ -12,7 +12,8 @@
     <attr name="colorButtonBackground" format="reference" />
     <attr name="colorButtonText" format="reference" />
     <attr name="colorRipple" format="reference" />
-    <dimen name="distance_null">0dp</dimen>
+    <dimen name="distance_zero">0dp</dimen>
+    <dimen name="distance_very_small">1dp</dimen>
     <dimen name="distance_too_small">4dp</dimen>
     <dimen name="distance_small">8dp</dimen>
     <dimen name="distance_too_medium">12dp</dimen>
