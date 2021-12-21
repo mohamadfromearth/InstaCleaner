@@ -1,8 +1,16 @@
 package com.example.instacleaner.ui.fragments
 
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.view.ContextThemeWrapper
+import android.view.Gravity
+import android.view.Gravity.NO_GRAVITY
+import android.view.MenuItem
 import android.view.View
+import android.widget.PopupMenu
+import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -19,19 +27,27 @@ import com.example.instacleaner.utils.setChildTypeface
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import androidx.appcompat.view.menu.MenuPopupHelper
 
+import androidx.appcompat.view.menu.MenuBuilder
+
+
+
+
+
+@SuppressLint("RestrictedApi")
 @AndroidEntryPoint
-class FollowFragment : Fragment(R.layout.fragment_follow) {
+class FollowFragment : Fragment(R.layout.fragment_follow),
+    MenuBuilder.Callback {
 
     private lateinit var adapter: FollowAdapter
 
     private val viewModel:FollowViewModel by viewModels()
 
-
-
     private var _binding: FragmentFollowBinding? = null
     private val binding: FragmentFollowBinding
         get() = _binding!!
+
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,10 +58,12 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
         init()
         setUpTabView()
         subscribeToObservers()
+        binding.options.setOnClickListener {
+            showPopUpMenu(it)
+        }
+
 
     }
-
-
 
 
     private fun init(){
@@ -98,6 +116,29 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
     }
 
 
+
+    @SuppressLint("RestrictedApi")
+    private fun showPopUpMenu(v:View){
+        val wrapper = ContextThemeWrapper(requireContext(),R.style.AppTheme_TextAppearance_Popup)
+        val popupMenu  = PopupMenu(wrapper,v)
+        popupMenu.inflate(R.menu.follow_menu)
+
+        val menuBuilder = MenuBuilder(requireContext())
+
+        menuBuilder.setCallback(this)
+        requireActivity().menuInflater.inflate(R.menu.follow_menu,menuBuilder)
+        val menuHelper = MenuPopupHelper(
+            requireContext(),
+            menuBuilder ,v,false,0,R.style.BasePopupMenu
+        )
+        menuHelper.gravity = NO_GRAVITY
+
+        menuHelper.setForceShowIcon(true)
+        menuHelper.show()
+
+    }
+
+
     private fun setUpTabView() {
         val tp = ResourcesCompat.getFont(requireContext(), R.font.iran_sans_web_medium)
         binding.followTab.getTabAt(0)?.view?.setChildTypeface(tp)
@@ -128,8 +169,14 @@ class FollowFragment : Fragment(R.layout.fragment_follow) {
 
 
 
+    override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean {
+        viewModel.popUpMenuAction(item.itemId)
+       return false
+    }
 
+    override fun onMenuModeChange(menu: MenuBuilder) {
 
+    }
 
 
 }

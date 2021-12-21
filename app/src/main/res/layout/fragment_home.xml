@@ -53,8 +53,8 @@
 
                 <ImageView
                     android:id="@+id/iv_log_out"
-                    android:layout_width="@dimen/size_medium"
-                    android:layout_height="@dimen/size_medium"
+                    android:layout_width="@dimen/distance_large"
+                    android:layout_height="@dimen/distance_large"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_logout"
@@ -232,6 +232,7 @@
                     android:gravity="start|center_vertical"
                     android:text="@string/analyze_my_posts"
                     app:cornerRadius="0dp"
+                    android:backgroundTint="@color/colorPrimaryLight"
                     app:icon="@drawable/ic_stats"
                     app:iconGravity="end"
                     app:layout_constraintTop_toBottomOf="@+id/home_cvStats"
@@ -252,6 +253,7 @@
                     app:iconGravity="end"
                     app:iconSize="24dp"
                     app:iconTint="@color/white"
+                    android:backgroundTint="@color/colorPrimaryLight"
                     app:layout_constraintTop_toBottomOf="@+id/my_analyze" />
 
 
@@ -265,6 +267,7 @@
                     app:cornerRadius="0dp"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="end"
+                    android:backgroundTint="@color/colorPrimaryLight"
                     app:layout_constraintTop_toBottomOf="@+id/show_my_post"
                     />
 

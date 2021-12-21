@@ -30,9 +30,6 @@ class FollowViewModel @Inject constructor(
     var shouldScroll = false
     private var isRequesting = false
     private var hasFollowerFilter = false
-    private var hasFollowingFilter = false
-    private var followerCurrentFilterTitle = app.getString(R.string.no_filter)
-    private var followingCurrentFilterTitle = app.getString(R.string.no_filter)
     private var followersLoadingVisibility = false
     private var followingLoadingVisibility = false
     private var maxId = ""
@@ -96,7 +93,7 @@ class FollowViewModel @Inject constructor(
          }
     }
 
-    fun getFollowers() = viewModelScope.launch {
+   private fun getFollowers() = viewModelScope.launch {
         followersLoadingVisibility = true
         isRequesting = true
         setLoading()
@@ -212,8 +209,6 @@ class FollowViewModel @Inject constructor(
         tabIndex = position
         setLoading()
         setList()
-
-
     }
 
     fun btnFilterAction() {
@@ -226,7 +221,6 @@ class FollowViewModel @Inject constructor(
             dialogModels.first { it.filter.javaClass.name == followingFilter.javaClass.name }.isSelected = true
         }
             showFilterDialog.value = Pair(app.getString(R.string.filter),dialogModels)
-
     }
 
    private  fun filter(list : ArrayList<User>, filter : DialogModel.FilterType) : ArrayList<User>{
@@ -266,7 +260,7 @@ class FollowViewModel @Inject constructor(
             }
 
             is DialogModel.FilterType.FollowBack -> {
-                var followBackList = ArrayList<User>()
+                val followBackList = ArrayList<User>()
                 if (tabIndex == 0){
                     return if (filter.isFollowBack){
                         followerList.forEach { user ->
@@ -274,9 +268,13 @@ class FollowViewModel @Inject constructor(
                         }
                         followBackList
                     } else{
-                        followerList.forEach { user ->
-                            followBackList.addAll(followingList.filter { it.pk != user.pk })
+                        followBackList.addAll(followerList.cloned())
+                        followingList.forEach { user->
+                            followBackList.removeAll { it.pk ==  user.pk}
                         }
+//                        followerList.forEach { user ->
+//                            followBackList.addAll(followingList.filter { it.pk != user.pk })
+//                        }
                         followBackList
                     }
 
@@ -287,14 +285,21 @@ class FollowViewModel @Inject constructor(
                       }
                        followBackList
                     }else{
-                        val mylist = ArrayList<User>()
-                        followBackList.addAll(list)
-                       followBackList.forEach { user ->
-                           mylist.addAll(followerList.filter { it.username == user.username })
+//                        val mylist = arrayListOf<User>()
+                        followBackList.addAll(followingList.cloned())
+                       followerList.forEach {user->
+                           followBackList.removeAll { it.pk == user.pk }
                        }
-                     val isRemove =  followBackList.removeAll()
-                       isRemove
-                       followBackList.cloned()
+//
+//
+//                       followBackList.forEach {  user ->
+//                           mylist.addAll(followerList.filter { it.pk == user.pk })
+//                       }
+//                     mylist.forEach { user ->
+//                         followBackList.removeAll(followBackList.filter {it.pk == user.pk  }.toSet())
+//                     }
+
+                       followBackList
                    }
 
                 }
@@ -307,7 +312,90 @@ class FollowViewModel @Inject constructor(
         }
     }
 
+    fun popUpMenuAction(itemId: Int?) {
+        when(itemId){
+            R.id.select_all -> {
+             if (tabIndex == 0){
+                 followerList.forEach {
+                     it.isSelected = true
+                 }
+                 adapterList.value = followerList.cloned()
+             }else{
+                 followingList.forEach {
+                     it.isSelected = true
+                 }
+                adapterList.value = followingList.cloned()
+             }
+            }
+           R.id.select_none -> {
+               if (tabIndex == 0){
+                   followerList.forEach {
+                       it.isSelected = false
+                   }
+                   adapterList.value = followerList.cloned()
+               }else{
+                   followingList.forEach {
+                       it.isSelected = false
+                   }
+                   adapterList.value = followingList.cloned()
+               }
+
+           }
+           R.id.invert_selection -> {
+               if (tabIndex == 0){
+                   followerList.forEach {
+                       it.isSelected = it.isSelected.not()
+                   }
+                   adapterList.value = followerList.cloned()
+               }else{
+                   followingList.forEach {
+                       it.isSelected = it.isSelected.not()
+                   }
+                   adapterList.value = followingList.cloned()
+               }
+
+           }
+           R.id.interval_selection -> {
+               if (tabIndex == 0){
+
+                   intervalSelect(followerList)?.let {
+                       adapterList.value = it
+                   }
+               }else{
+                   intervalSelect(followingList)?.let {
+                       adapterList.value = intervalSelect(it)
+                   }
 
 
+               }
+           }
+        }
+    }
 
-}
+
+   private fun intervalSelect(list:ArrayList<User>):ArrayList<User>?{
+       var shouldUpdateFirstIndex = true
+       var firstIndex = 0
+       var secondIndex = 0
+       list.forEach {
+           if (it.isSelected){
+               if (shouldUpdateFirstIndex){
+                   firstIndex = list.indexOf(it)
+                   shouldUpdateFirstIndex = false
+               }else{
+                   secondIndex = list.indexOf(it)
+               }
+           }
+       }
+
+       for ( index in firstIndex .. secondIndex){
+           list[index].isSelected = true
+       }
+       return if (firstIndex != secondIndex){
+           list.cloned()
+       }else{
+           null
+       }
+   }
+
+    }

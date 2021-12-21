@@ -28,6 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:menu="@menu/insta_cleaner_bottom_nav"
+            app:itemTextAppearanceActive="@style/Widget.BottomNavigationView"
             />
 
 
