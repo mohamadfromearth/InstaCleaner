@@ -1,6 +1,7 @@
 package com.example.instacleaner.ui.viewModels
 
 import android.view.View
+import androidx.compose.ui.window.Dialog
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -40,17 +41,19 @@ class FollowViewModel @Inject constructor(
     var tabIndex = 0
     private val followerList = arrayListOf<User>()
     private val followingList = arrayListOf<User>()
-    private var followerFilteredList = arrayListOf<User>()
-    private var followingFilteredList = arrayListOf<User>()
+
 
     val loadingVisibility = ObservableInt(View.GONE)
 
 
-    private var followerFilter : DialogModel.FilterType = DialogModel.FilterType.NoFilter
-    private var followingFilter : DialogModel.FilterType = DialogModel.FilterType.NoFilter
+    private var followerFilter : DialogModel.Options = DialogModel.Options.NoFilter
+    private var followingFilter : DialogModel.Options = DialogModel.Options.NoFilter
+    private var followerSort:DialogModel.Options =  DialogModel.Options.NoSort
+    private var followingSort:DialogModel.Options = DialogModel.Options.NoSort
 
     val adapterList = MutableLiveData<ArrayList<User>>()
     val showFilterDialog = SingleLiveEvent<Pair<String,ArrayList<DialogModel>>>()
+    val showSortDialog = SingleLiveEvent<Pair<String,ArrayList<DialogModel>>>()
 
 
 
@@ -149,23 +152,32 @@ class FollowViewModel @Inject constructor(
         }
     }
 
-    fun setFilter(filterType:DialogModel.FilterType){
+    fun setFilter(options:DialogModel.Options){
         shouldScroll = true
         if (tabIndex == 0){
-            followerFilter = filterType
+            followerFilter = options
         }else{
-            followingFilter = filterType
+            followingFilter = options
         }
         setList()
         shouldScroll = false
     }
 
+    fun setSort(options:DialogModel.Options){
+        if (tabIndex==0){
+            followerSort = options
+        }else{
+            followingSort = options
+        }
+        setList()
+    }
+
      private fun setList() {
         if (tabIndex == 0) {
-            adapterList.value = filter(followerList,followerFilter)
+            adapterList.value = filter(sort(followerSort,followerList),followerFilter)
         }
         else {
-            adapterList.value = filter(followingList,followingFilter)
+            adapterList.value = filter(sort(followingSort,followingList),followingFilter)
         }
     }
 
@@ -181,33 +193,38 @@ class FollowViewModel @Inject constructor(
 
 
 
+
     private fun followingFilterDialogList() =
         arrayListOf(
-            DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.FilterType.Status(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.no_pic)),Tab(app.getString(R.string.has_pic))),app.getString(R.string.by_profile_picture),DialogModel.FilterType.Avatar(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify),DialogModel.FilterType.Verify(false)),
+            DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.Options.Status(false)),
+            DialogModel(listOf(Tab(app.getString(R.string.no_pic)),Tab(app.getString(R.string.has_pic))),app.getString(R.string.by_profile_picture),DialogModel.Options.Avatar(false)),
+            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify),DialogModel.Options.Verify(false)),
            // DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
-            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection),DialogModel.FilterType.Select(true)),
-            DialogModel(listOf(Tab(app.getString(R.string.they_following_back)),Tab(app.getString(R.string.they_not_following_back))),app.getString(R.string.by_followback),DialogModel.FilterType.FollowBack(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.FilterType.NoFilter)
-
+            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection),DialogModel.Options.Select(true)),
+            DialogModel(listOf(Tab(app.getString(R.string.they_following_back)),Tab(app.getString(R.string.they_not_following_back))),app.getString(R.string.by_followback),DialogModel.Options.FollowBack(false)),
+            DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.Options.NoFilter)
         )
 
     private fun followerFilterDialogList() =
         arrayListOf(
-    DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.FilterType.Status(false)),
-    DialogModel(listOf(Tab(app.getString(R.string.has_pic)),Tab(app.getString(R.string.no_pic))),app.getString(R.string.by_profile_picture),DialogModel.FilterType.Avatar(false)),
-    DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify),DialogModel.FilterType.Verify(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection),DialogModel.FilterType.Select(true)),
-    DialogModel(listOf(Tab(app.getString(R.string.i_following_back)),Tab(app.getString(R.string.i_not_following_back))),app.getString(R.string.by_followback),DialogModel.FilterType.FollowBack(false)),
-    DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.FilterType.NoFilter)
+    DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.Options.Status(false)),
+    DialogModel(listOf(Tab(app.getString(R.string.has_pic)),Tab(app.getString(R.string.no_pic))),app.getString(R.string.by_profile_picture),DialogModel.Options.Avatar(false)),
+    DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify),DialogModel.Options.Verify(false)),
+            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection),DialogModel.Options.Select(true)),
+    DialogModel(listOf(Tab(app.getString(R.string.i_following_back)),Tab(app.getString(R.string.i_not_following_back))),app.getString(R.string.by_followback),DialogModel.Options.FollowBack(false)),
+    DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.Options.NoFilter)
+        )
 
-    )
+
+    private fun sortList() = arrayListOf(
+        DialogModel(listOf(Tab(app.getString(R.string.a_to_z)),Tab(app.getString(R.string.z_to_a))),app.getString(R.string.by_username),DialogModel.Options.ByUsername(true)),
+        DialogModel(listOf(Tab(app.getString(R.string.public_first)),Tab(app.getString(R.string.private_first))),app.getString(R.string.by_status),DialogModel.Options.ByCondition(true)),
+        DialogModel(listOf(Tab(app.getString(R.string.pic_first)),Tab(app.getString(R.string.no_pic_first))),app.getString(R.string.by_profile_picture),DialogModel.Options.ByAvatar(true)),
+        DialogModel(listOf(Tab(app.getString(R.string.selected_first)),Tab(app.getString(R.string.not_selected_first))),app.getString(R.string.by_selection),DialogModel.Options.BySelection(true)),
+        DialogModel(listOf(Tab(app.getString(R.string.sort))),app.getString(R.string.sort),DialogModel.Options.NoSort)
+        )
 
 
-    private fun sortFilterDialogList(){
-
-    }
 
 
 
@@ -222,27 +239,27 @@ class FollowViewModel @Inject constructor(
         val dialogModels = arrayListOf<DialogModel>()
         if (tabIndex == 0){
             dialogModels.addAll(followerFilterDialogList())
-            dialogModels.first { it.filter.javaClass.name == followerFilter.javaClass.name }.isSelected = true
+            dialogModels.first { it.option.javaClass.name == followerFilter.javaClass.name }.isSelected = true
         }else{
             dialogModels.addAll(followingFilterDialogList())
-            dialogModels.first { it.filter.javaClass.name == followingFilter.javaClass.name }.isSelected = true
+            dialogModels.first { it.option.javaClass.name == followingFilter.javaClass.name }.isSelected = true
         }
             showFilterDialog.value = Pair(app.getString(R.string.filter),dialogModels)
     }
 
-   private  fun filter(list : ArrayList<User>, filter : DialogModel.FilterType) : ArrayList<User>{
+   private  fun filter(list : ArrayList<User>, filter : DialogModel.Options) : ArrayList<User>{
         if (tabIndex == 0) followerFilter = filter else followingFilter = filter
         when(filter){
-            is DialogModel.FilterType.Status -> {
+            is DialogModel.Options.Status -> {
                 return if (filter.isPrivate){
                     list.filter { it.is_private }.cloned()
                 }else{
 
-                    list.filter { !it.is_private.not() }.cloned()
+                    list.filter { it.is_private.not() }.cloned()
                 }
             }
 
-            is DialogModel.FilterType.Avatar -> {
+            is DialogModel.Options.Avatar -> {
                 return if(filter.hasAvatar){
                     list.filter { it.has_anonymous_profile_picture.not() }.cloned()
                 }else{
@@ -250,7 +267,7 @@ class FollowViewModel @Inject constructor(
                 }
             }
 
-            is DialogModel.FilterType.Verify -> {
+            is DialogModel.Options.Verify -> {
                 return if (filter.isVerify){
                     list.filter { it.is_verified }.cloned()
                 }else{
@@ -258,7 +275,7 @@ class FollowViewModel @Inject constructor(
                 }
             }
 
-            is DialogModel.FilterType.Select -> {
+            is DialogModel.Options.Select -> {
                 return if (filter.isSelected){
                     list.filter { it.isSelected }.cloned()
                  }else{
@@ -266,7 +283,7 @@ class FollowViewModel @Inject constructor(
                  }
             }
 
-            is DialogModel.FilterType.FollowBack -> {
+            is DialogModel.Options.FollowBack -> {
                 val followBackList = ArrayList<User>()
                 if (tabIndex == 0){
                     return if (filter.isFollowBack){
@@ -279,9 +296,6 @@ class FollowViewModel @Inject constructor(
                         followingList.forEach { user->
                             followBackList.removeAll { it.pk ==  user.pk}
                         }
-//                        followerList.forEach { user ->
-//                            followBackList.addAll(followingList.filter { it.pk != user.pk })
-//                        }
                         followBackList
                     }
 
@@ -292,19 +306,10 @@ class FollowViewModel @Inject constructor(
                       }
                        followBackList
                     }else{
-//                        val mylist = arrayListOf<User>()
                         followBackList.addAll(followingList.cloned())
                        followerList.forEach {user->
                            followBackList.removeAll { it.pk == user.pk }
                        }
-//
-//
-//                       followBackList.forEach {  user ->
-//                           mylist.addAll(followerList.filter { it.pk == user.pk })
-//                       }
-//                     mylist.forEach { user ->
-//                         followBackList.removeAll(followBackList.filter {it.pk == user.pk  }.toSet())
-//                     }
 
                        followBackList
                    }
@@ -318,6 +323,45 @@ class FollowViewModel @Inject constructor(
 
         }
     }
+
+
+
+   private fun sort(sort:DialogModel.Options,users:ArrayList<User>):ArrayList<User>{
+       when(sort){
+           is DialogModel.Options.ByUsername -> {
+               return if (sort.state){
+                   users.sortBy { it.username }
+                   users.cloned()
+               }else{
+                   users.sortBy { it.username }
+                   users.reverse()
+                   users.cloned()
+               }
+
+           }
+           is DialogModel.Options.ByCondition -> {
+               return if (sort.isFirstPublic){
+                   users.sortBy {it.is_private.not()}
+                   users.cloned()
+               }else{
+                   users.sortBy { it.is_private }
+                   users.cloned()
+               }
+
+           }
+           is DialogModel.Options.ByAvatar -> {
+              return users
+           }
+           is DialogModel.Options.BySelection -> {
+            return users
+           }
+           is DialogModel.Options.NoSort -> {
+             return users
+           }
+           else -> return users.cloned()
+       }
+   }
+
 
     fun popUpMenuAction(itemId: Int?) {
         when(itemId){
@@ -425,4 +469,14 @@ class FollowViewModel @Inject constructor(
         }
     }
 
-}
+    fun btnSortClick() {
+        val sortList = sortList()
+        if (tabIndex == 0){
+            sortList.first { it.option.javaClass.name == followerSort.javaClass.name }.isSelected = true
+            showSortDialog.value = Pair("",sortList)
+        }else{
+
+        }
+    }
+
+    }

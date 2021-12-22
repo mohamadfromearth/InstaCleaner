@@ -2,37 +2,30 @@ package com.example.instacleaner.ui.fragments
 
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.Gravity.NO_GRAVITY
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
-import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
-import com.example.instacleaner.App
 import com.example.instacleaner.R
 import com.example.instacleaner.adapters.FollowAdapter
 import com.example.instacleaner.databinding.FragmentFollowBinding
-import com.example.instacleaner.ui.dialog.MainDialog
+import com.example.instacleaner.ui.dialog.TabDialog
 import com.example.instacleaner.ui.viewModels.FollowViewModel
 import com.example.instacleaner.utils.log
 import com.example.instacleaner.utils.setChildTypeface
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import androidx.appcompat.view.menu.MenuPopupHelper
 
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
-import kotlinx.coroutines.Job
 
 
 @SuppressLint("RestrictedApi")
@@ -62,6 +55,10 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
 
         binding.edtSearch.addTextChangedListener {
             viewModel.search(binding.edtSearch.text.toString())
+        }
+
+        binding.btnSort.setOnClickListener {
+            viewModel.btnSortClick()
         }
     }
 
@@ -96,18 +93,26 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         })
 
         viewModel.showFilterDialog.observe(viewLifecycleOwner,{
+            TabDialog(it){ dialogModel ->
+                viewModel.setFilter(dialogModel.option)
+            }.show(childFragmentManager,"")
+        })
 
-            MainDialog(it){ dialogModel ->
-                viewModel.setFilter(dialogModel.filter)
 
+        viewModel.showSortDialog.observe(viewLifecycleOwner,{
+
+            TabDialog(it){ dialogModel ->
+                viewModel.setSort(dialogModel.option)
             }.show(childFragmentManager,"")
         })
 
     }
 
     private fun setUpRecyclerView() {
-        adapter = FollowAdapter(){ pos,user ->
-             viewModel.onItemClickAction(pos,user)
+        adapter = FollowAdapter({ pos,user ->
+            viewModel.onItemClickAction(pos,user)
+        }){ pos,user ->
+
         }
         binding.rvFollow.adapter = adapter
     }

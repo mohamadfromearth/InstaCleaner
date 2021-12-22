@@ -21,7 +21,7 @@
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="157dp"
+            android:layout_height="wrap_content"
             android:background="@color/design_default_color_on_primary"
             >
 
@@ -53,6 +53,7 @@
                         android:layout_height="40dp"
                         app:cornerRadius="40dp"
                         app:icon="@drawable/ic_sort"
+                        app:iconSize="18dp"
                         app:iconPadding="0dp"
                         app:iconTint="@color/md_white_1000"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -64,7 +65,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_filter"
-                        style="@style/materialButton"
+                        style="@style/GeneralButton.ToolbarButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_margin="@dimen/distance_too_small"
@@ -72,6 +73,7 @@
                         app:icon="@drawable/ic_filter"
                         app:iconTint="@color/md_white_1000"
                         app:layout_constraintBottom_toBottomOf="parent"
+                        app:iconSize="18dp"
                         app:layout_constraintStart_toEndOf="@+id/btn_sort"
                         app:layout_constraintTop_toTopOf="parent"
                         app:rippleColor="@color/md_white_1000"
@@ -86,6 +88,7 @@
                         app:cornerRadius="40dp"
                         app:icon="@drawable/ic_selection"
                         app:iconTint="@color/white"
+                        app:iconSize="18dp"
                         app:iconPadding="0dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -137,11 +140,12 @@
                 </com.google.android.material.tabs.TabLayout>
 
 
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
                 android:id="@+id/edt_search"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="top"
+                android:textSize="@dimen/text_size_medium"
                 android:hint="@string/search"
                 android:fontFamily="@font/iran_sans_web_light"
                 />

@@ -14,7 +14,6 @@ import com.example.instacleaner.R
 import com.example.instacleaner.adapters.DialogAdapter
 import com.example.instacleaner.data.local.DialogModel
 import com.example.instacleaner.data.local.DialogModel.Companion.cloned
-import com.example.instacleaner.data.local.dialogModel.Tab
 import com.example.instacleaner.databinding.DialogMainBinding
 import com.example.instacleaner.utils.setChildTypeface
 import com.google.android.material.tabs.TabLayout
@@ -24,7 +23,7 @@ import com.google.android.material.tabs.TabLayout
 //mGestureThreshold = (GESTURE_THRESHOLD_DP * scale + 0.5f).toInt()
 
 
-class MainDialog(
+class TabDialog(
     private val dialogModels:Pair<String,ArrayList<DialogModel>>,
     private val callBack:(dialogModel:DialogModel)->Unit
                  ):DialogFragment() {
@@ -39,7 +38,7 @@ class MainDialog(
     private val binding:DialogMainBinding
     get() = _binding!!
 
-    var filter : DialogModel.FilterType  = dialogModels.second.first { it.isSelected }.filter
+    var options : DialogModel.Options  = dialogModels.second.first { it.isSelected }.option
 
 
     override fun onCreateView(
@@ -64,13 +63,19 @@ class MainDialog(
             override fun onTabSelected(tab: TabLayout.Tab?) {
               tab?.let {
                   tabIndex = it.position
-                  filter = when(filter){
-                      is DialogModel.FilterType.Status -> DialogModel.FilterType.Status(tabIndex == 0)
-                      is DialogModel.FilterType.Avatar -> DialogModel.FilterType.Avatar(tabIndex == 0)
-                      is DialogModel.FilterType.Verify -> DialogModel.FilterType.Verify(tabIndex == 0)
-                      is DialogModel.FilterType.Select -> DialogModel.FilterType.Select(tabIndex == 0)
-                      is DialogModel.FilterType.FollowBack -> DialogModel.FilterType.FollowBack(tabIndex == 0)
-                      is DialogModel.FilterType.NoFilter -> DialogModel.FilterType.NoFilter
+                  options = when(options){
+                      is DialogModel.Options.Status -> DialogModel.Options.Status(tabIndex == 0)
+                      is DialogModel.Options.Avatar -> DialogModel.Options.Avatar(tabIndex == 0)
+                      is DialogModel.Options.Verify -> DialogModel.Options.Verify(tabIndex == 0)
+                      is DialogModel.Options.Select -> DialogModel.Options.Select(tabIndex == 0)
+                      is DialogModel.Options.FollowBack -> DialogModel.Options.FollowBack(tabIndex == 0)
+                      is DialogModel.Options.NoFilter -> DialogModel.Options.NoFilter
+                      is DialogModel.Options.ByUsername -> DialogModel.Options.ByUsername(tabIndex == 0)
+                      is DialogModel.Options.ByCondition -> DialogModel.Options.ByCondition(tabIndex == 0)
+                      is DialogModel.Options.ByAvatar -> DialogModel.Options.ByAvatar(tabIndex == 0)
+                      is DialogModel.Options.BySelection -> DialogModel.Options.BySelection(tabIndex == 0)
+                      is DialogModel.Options.NoSort -> DialogModel.Options.NoSort
+
                   }
 
               }
@@ -88,7 +93,7 @@ class MainDialog(
 
         binding.btnOk.setOnClickListener {
             val dialogModel = dialogModels.second.first { it.isSelected }
-            callBack(dialogModel.copy(filter = filter))
+            callBack(dialogModel.copy(option = options))
             dismiss()
         }
 
@@ -133,20 +138,24 @@ class MainDialog(
         dialogAdapter = DialogAdapter { dialogModel, pos ->
             //remove all tabs
             //for each tab, create a tab
-            when (dialogModel.filter) {
-                is DialogModel.FilterType.Status -> filter = DialogModel.FilterType.Status(tabIndex == 0)
-                is DialogModel.FilterType.Avatar -> filter = DialogModel.FilterType.Avatar(tabIndex == 0)
-                is DialogModel.FilterType.Verify -> filter = DialogModel.FilterType.Verify(tabIndex == 0)
-                is DialogModel.FilterType.Select -> filter = DialogModel.FilterType.Select(tabIndex == 0)
-                is DialogModel.FilterType.FollowBack -> filter = DialogModel.FilterType.FollowBack(tabIndex == 0)
-                is DialogModel.FilterType.NoFilter -> filter = DialogModel.FilterType.NoFilter
+            options = when (dialogModel.option) {
+                is DialogModel.Options.Status -> DialogModel.Options.Status(tabIndex == 0)
+                is DialogModel.Options.Avatar -> DialogModel.Options.Avatar(tabIndex == 0)
+                is DialogModel.Options.Verify -> DialogModel.Options.Verify(tabIndex == 0)
+                is DialogModel.Options.Select -> DialogModel.Options.Select(tabIndex == 0)
+                is DialogModel.Options.FollowBack -> DialogModel.Options.FollowBack(tabIndex == 0)
+                is DialogModel.Options.NoFilter -> DialogModel.Options.NoFilter
+                is DialogModel.Options.ByUsername -> DialogModel.Options.ByUsername(tabIndex==0)
+                is DialogModel.Options.ByCondition -> DialogModel.Options.ByCondition(tabIndex==0)
+                is DialogModel.Options.ByAvatar -> DialogModel.Options.ByAvatar(tabIndex==0)
+                is DialogModel.Options.BySelection -> DialogModel.Options.BySelection(tabIndex == 0)
+                is DialogModel.Options.NoSort -> DialogModel.Options.NoSort
             }
 
             binding.dialogTab.removeAllTabs()
             dialogModel.tabs.forEach {
                       binding.dialogTab.addTab(createTab(it.title))
-
-                }
+            }
 
             val dialogList =  dialogModels.second.cloned()
             dialogList.forEach {

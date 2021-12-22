@@ -22,6 +22,7 @@
         <entry key="app/src/main/res/drawable/tab_bg.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/tab_color_selector.xml" value="0.19074074074074074" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1733097880928355" />
+        <entry key="app/src/main/res/layout/dialog_list.xml" value="0.10009057971014493" />
         <entry key="app/src/main/res/layout/dialog_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_favorites.xml" value="0.1733097880928355" />
         <entry key="app/src/main/res/layout/fragment_follow.xml" value="0.375" />
