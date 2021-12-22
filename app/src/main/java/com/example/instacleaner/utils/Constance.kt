@@ -53,6 +53,7 @@ object Constance {
 
     //const
     const val CON_MAX_ACCOUNT = 7
+    const val SEARCH_INTERVAL:Long = 1000
 
     //arguments
     const val ARG_COOKIE = "ARG_COOKIE"

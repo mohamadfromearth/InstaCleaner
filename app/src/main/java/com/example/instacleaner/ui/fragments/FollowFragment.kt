@@ -30,9 +30,9 @@ import javax.inject.Inject
 import androidx.appcompat.view.menu.MenuPopupHelper
 
 import androidx.appcompat.view.menu.MenuBuilder
-
-
-
+import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
+import kotlinx.coroutines.Job
 
 
 @SuppressLint("RestrictedApi")
@@ -48,8 +48,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
     private val binding: FragmentFollowBinding
         get() = _binding!!
 
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = DataBindingUtil.bind(view)!!
@@ -62,7 +60,9 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             showPopUpMenu(it)
         }
 
-
+        binding.edtSearch.addTextChangedListener {
+            viewModel.search(binding.edtSearch.text.toString())
+        }
     }
 
 
@@ -85,7 +85,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         }
     }
 
-
     private fun subscribeToObservers(){
         viewModel.adapterList.observe(viewLifecycleOwner,{
             adapter.submitList(it.toList()) {
@@ -93,7 +92,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
                           binding.rvFollow.scrollToPosition(0)
                           viewModel.shouldScroll = false
                       }
-
             }
         })
 
@@ -106,7 +104,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         })
 
     }
-
 
     private fun setUpRecyclerView() {
         adapter = FollowAdapter(){ pos,user ->

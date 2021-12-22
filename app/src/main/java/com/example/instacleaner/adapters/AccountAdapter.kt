@@ -27,9 +27,10 @@ class AccountAdapter(
         ViewHolder(binding.root) {
         fun bind(account: Account) {
             log("HOLDER:NORMAL${account.isSelected}")
+            val scale = binding.root.context.resources.displayMetrics.density
             binding.apply {
                 setAccount(account)
-                ivProfile.strokeWidth = if(account.isSelected) 8F else 0F
+                ivProfile.strokeWidth = if(account.isSelected) (3f * scale) else 0F
                 root.setOnClickListener {
                     onAccountClick(bindingAdapterPosition, account)
                 }

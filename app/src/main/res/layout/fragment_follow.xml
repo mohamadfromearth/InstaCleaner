@@ -21,7 +21,7 @@
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="118dp"
+            android:layout_height="157dp"
             android:background="@color/design_default_color_on_primary"
             >
 
@@ -114,7 +114,6 @@
                     android:layout_marginEnd="@dimen/distance_medium"
                     android:layout_marginStart="@dimen/distance_medium"
                     android:background="@drawable/circle_bg"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:tabBackground="@drawable/tab_bg"
                     app:tabIndicatorHeight="0dp"
                     tools:layout_editor_absoluteX="16dp">
@@ -138,19 +137,28 @@
                 </com.google.android.material.tabs.TabLayout>
 
 
-
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_search"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="top"
+                android:hint="@string/search"
+                android:fontFamily="@font/iran_sans_web_light"
+                />
 
 
 
 
         </com.google.android.material.appbar.AppBarLayout>
 
+
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_follow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:layout_constraintTop_toBottomOf="@+id/follow_tab"
             app:spanCount="4"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             tools:listitem="@layout/row_follow" />

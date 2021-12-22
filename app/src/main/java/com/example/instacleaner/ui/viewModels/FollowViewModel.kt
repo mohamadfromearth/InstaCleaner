@@ -14,9 +14,11 @@ import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.data.remote.response.User.Companion.cloned
 import com.example.instacleaner.repositories.InstaRepository
 import com.example.instacleaner.utils.AccountManager
+import com.example.instacleaner.utils.Constance.SEARCH_INTERVAL
 import com.example.instacleaner.utils.Resource
 import com.example.instacleaner.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -123,7 +125,7 @@ class FollowViewModel @Inject constructor(
     }
 
 
-     fun getFollowings() = viewModelScope.launch {
+    private fun getFollowings() = viewModelScope.launch {
         followingLoadingVisibility = true
         setLoading()
         when (val result = repository.getFollowing(accountManager.getCurrentAccount())) {
@@ -179,7 +181,7 @@ class FollowViewModel @Inject constructor(
 
 
 
-    private fun followingDialogList() =
+    private fun followingFilterDialogList() =
         arrayListOf(
             DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.FilterType.Status(false)),
             DialogModel(listOf(Tab(app.getString(R.string.no_pic)),Tab(app.getString(R.string.has_pic))),app.getString(R.string.by_profile_picture),DialogModel.FilterType.Avatar(false)),
@@ -191,7 +193,7 @@ class FollowViewModel @Inject constructor(
 
         )
 
-    private fun followerDialogList() =
+    private fun followerFilterDialogList() =
         arrayListOf(
     DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.FilterType.Status(false)),
     DialogModel(listOf(Tab(app.getString(R.string.has_pic)),Tab(app.getString(R.string.no_pic))),app.getString(R.string.by_profile_picture),DialogModel.FilterType.Avatar(false)),
@@ -201,6 +203,11 @@ class FollowViewModel @Inject constructor(
     DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.FilterType.NoFilter)
 
     )
+
+
+    private fun sortFilterDialogList(){
+
+    }
 
 
 
@@ -214,10 +221,10 @@ class FollowViewModel @Inject constructor(
     fun btnFilterAction() {
         val dialogModels = arrayListOf<DialogModel>()
         if (tabIndex == 0){
-            dialogModels.addAll(followerDialogList())
+            dialogModels.addAll(followerFilterDialogList())
             dialogModels.first { it.filter.javaClass.name == followerFilter.javaClass.name }.isSelected = true
         }else{
-            dialogModels.addAll(followingDialogList())
+            dialogModels.addAll(followingFilterDialogList())
             dialogModels.first { it.filter.javaClass.name == followingFilter.javaClass.name }.isSelected = true
         }
             showFilterDialog.value = Pair(app.getString(R.string.filter),dialogModels)
@@ -398,4 +405,24 @@ class FollowViewModel @Inject constructor(
        }
    }
 
+    fun search(query:String) {
+        viewModelScope.launch {
+         delay(SEARCH_INTERVAL)
+            if (tabIndex == 0){
+                if (query.isEmpty()){
+                    adapterList.value = followerList
+                    return@launch
+                }
+            }else{
+                if (query.isEmpty()) {
+                    adapterList.value = followingList
+                    return@launch
+                }
+            }
+            adapterList.value?.let { users ->
+                adapterList.value = users.filter { it.username.contains(query) }.cloned()
+            }
+        }
     }
+
+}

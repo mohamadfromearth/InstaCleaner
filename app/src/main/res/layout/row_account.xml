@@ -18,13 +18,13 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_profile"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            app:shapeAppearance="@style/circleImageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:shapeAppearance="@style/circleImageViewWithStroke"
             android:scaleType="centerCrop"
             imageUrl="@{account.user.profile_pic_url}"
             android:padding="6dp"
-            app:strokeColor="@color/colorPrimaryDark"
+            app:strokeColor="@color/colorPrimaryLight"
             />
 
 
