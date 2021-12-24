@@ -35,6 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:background="@color/colorPrimary"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
             app:reverseLayout="true"
@@ -232,7 +233,7 @@
                     android:gravity="start|center_vertical"
                     android:text="@string/analyze_my_posts"
                     app:cornerRadius="0dp"
-                    android:backgroundTint="@color/colorPrimaryLight"
+                    android:backgroundTint="@color/colorPrimary"
                     app:icon="@drawable/ic_stats"
                     app:iconGravity="end"
                     app:layout_constraintTop_toBottomOf="@+id/home_cvStats"
@@ -253,7 +254,7 @@
                     app:iconGravity="end"
                     app:iconSize="24dp"
                     app:iconTint="@color/white"
-                    android:backgroundTint="@color/colorPrimaryLight"
+                    android:backgroundTint="@color/colorPrimary"
                     app:layout_constraintTop_toBottomOf="@+id/my_analyze" />
 
 
@@ -267,7 +268,7 @@
                     app:cornerRadius="0dp"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="end"
-                    android:backgroundTint="@color/colorPrimaryLight"
+                    android:backgroundTint="@color/colorPrimary"
                     app:layout_constraintTop_toBottomOf="@+id/show_my_post"
                     />
 

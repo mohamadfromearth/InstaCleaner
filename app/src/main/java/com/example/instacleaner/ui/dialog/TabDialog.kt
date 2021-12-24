@@ -55,6 +55,7 @@ class TabDialog(
         setDialogBackground()
         setUpRecyclerView()
         setDataToViews()
+        setOptionState(options)
 
         binding.dialogTab.getTabAt(tabIndex)?.select()
 
@@ -63,20 +64,7 @@ class TabDialog(
             override fun onTabSelected(tab: TabLayout.Tab?) {
               tab?.let {
                   tabIndex = it.position
-                  options = when(options){
-                      is DialogModel.Options.Status -> DialogModel.Options.Status(tabIndex == 0)
-                      is DialogModel.Options.Avatar -> DialogModel.Options.Avatar(tabIndex == 0)
-                      is DialogModel.Options.Verify -> DialogModel.Options.Verify(tabIndex == 0)
-                      is DialogModel.Options.Select -> DialogModel.Options.Select(tabIndex == 0)
-                      is DialogModel.Options.FollowBack -> DialogModel.Options.FollowBack(tabIndex == 0)
-                      is DialogModel.Options.NoFilter -> DialogModel.Options.NoFilter
-                      is DialogModel.Options.ByUsername -> DialogModel.Options.ByUsername(tabIndex == 0)
-                      is DialogModel.Options.ByCondition -> DialogModel.Options.ByCondition(tabIndex == 0)
-                      is DialogModel.Options.ByAvatar -> DialogModel.Options.ByAvatar(tabIndex == 0)
-                      is DialogModel.Options.BySelection -> DialogModel.Options.BySelection(tabIndex == 0)
-                      is DialogModel.Options.NoSort -> DialogModel.Options.NoSort
-
-                  }
+               setOptionState(options)
 
               }
             }
@@ -100,6 +88,10 @@ class TabDialog(
         return binding.root
     }
 
+
+    private fun initTabState(){
+
+    }
 
 
     private  fun setDataToViews(){
@@ -131,26 +123,28 @@ class TabDialog(
         }
     }
 
-
+private fun setOptionState(option:DialogModel.Options){
+    options = when (option) {
+        is DialogModel.Options.Status -> DialogModel.Options.Status(tabIndex != 0)
+        is DialogModel.Options.Avatar -> DialogModel.Options.Avatar(tabIndex == 0)
+        is DialogModel.Options.Verify -> DialogModel.Options.Verify(tabIndex == 0)
+        is DialogModel.Options.Select -> DialogModel.Options.Select(tabIndex == 0)
+        is DialogModel.Options.FollowBack -> DialogModel.Options.FollowBack(tabIndex == 0)
+        is DialogModel.Options.NoFilter -> DialogModel.Options.NoFilter
+        is DialogModel.Options.ByUsername -> DialogModel.Options.ByUsername(tabIndex==0)
+        is DialogModel.Options.ByCondition -> DialogModel.Options.ByCondition(tabIndex==0)
+        is DialogModel.Options.ByAvatar -> DialogModel.Options.ByAvatar(tabIndex==0)
+        is DialogModel.Options.BySelection -> DialogModel.Options.BySelection(tabIndex == 0)
+        is DialogModel.Options.NoSort -> DialogModel.Options.NoSort
+    }
+}
 
 
     private fun setUpRecyclerView() {
         dialogAdapter = DialogAdapter { dialogModel, pos ->
             //remove all tabs
             //for each tab, create a tab
-            options = when (dialogModel.option) {
-                is DialogModel.Options.Status -> DialogModel.Options.Status(tabIndex == 0)
-                is DialogModel.Options.Avatar -> DialogModel.Options.Avatar(tabIndex == 0)
-                is DialogModel.Options.Verify -> DialogModel.Options.Verify(tabIndex == 0)
-                is DialogModel.Options.Select -> DialogModel.Options.Select(tabIndex == 0)
-                is DialogModel.Options.FollowBack -> DialogModel.Options.FollowBack(tabIndex == 0)
-                is DialogModel.Options.NoFilter -> DialogModel.Options.NoFilter
-                is DialogModel.Options.ByUsername -> DialogModel.Options.ByUsername(tabIndex==0)
-                is DialogModel.Options.ByCondition -> DialogModel.Options.ByCondition(tabIndex==0)
-                is DialogModel.Options.ByAvatar -> DialogModel.Options.ByAvatar(tabIndex==0)
-                is DialogModel.Options.BySelection -> DialogModel.Options.BySelection(tabIndex == 0)
-                is DialogModel.Options.NoSort -> DialogModel.Options.NoSort
-            }
+         setOptionState(dialogModel.option)
 
             binding.dialogTab.removeAllTabs()
             dialogModel.tabs.forEach {

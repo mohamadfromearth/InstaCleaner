@@ -26,129 +26,132 @@
             >
 
 
+
+
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
                 app:expandedTitleGravity="top"
                 app:expandedTitleMarginStart="48dp"
                 app:expandedTitleMarginEnd="64dp"
                 app:layout_scrollFlags="scroll|enterAlways">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/constraintLayout"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     >
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_sort"
-                        style="@style/materialButton"
-                        android:layout_width="40dp"
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/follow_tab"
+                        android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        app:cornerRadius="40dp"
-                        app:icon="@drawable/ic_sort"
-                        app:iconSize="18dp"
-                        app:iconPadding="0dp"
-                        app:iconTint="@color/md_white_1000"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:rippleColor="@color/md_white_1000" />
+                        android:layout_marginTop="15dp"
+                        android:layout_marginEnd="@dimen/distance_medium"
+                        android:layout_marginStart="@dimen/distance_medium"
+                        android:background="@drawable/circle_bg"
+                        app:tabBackground="@drawable/tab_bg"
+                        app:tabIndicatorHeight="0dp"
+                        tools:layout_editor_absoluteX="16dp">
+
+                        <com.google.android.material.tabs.TabItem
+                            android:id="@+id/tab1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/circle_bg"
+                            android:text="@string/followers"
+
+                            />
+
+                        <com.google.android.material.tabs.TabItem
+                            android:id="@+id/tab2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/circle_bg"
+                            android:text="@string/followings" />
+
+                    </com.google.android.material.tabs.TabLayout>
 
 
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_filter"
-                        style="@style/GeneralButton.ToolbarButton"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_margin="@dimen/distance_too_small"
-                        app:cornerRadius="40dp"
-                        app:icon="@drawable/ic_filter"
-                        app:iconTint="@color/md_white_1000"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:iconSize="18dp"
-                        app:layout_constraintStart_toEndOf="@+id/btn_sort"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:rippleColor="@color/md_white_1000"
+                    <EditText
+                        android:id="@+id/edt_search"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:textSize="@dimen/text_size_medium"
+                        android:hint="@string/search"
+                        android:fontFamily="@font/iran_sans_web_light"
                         />
-
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/options"
-                        style="@style/materialButton"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        app:cornerRadius="40dp"
-                        app:icon="@drawable/ic_selection"
-                        app:iconTint="@color/white"
-                        app:iconSize="18dp"
-                        app:iconPadding="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:rippleColor="@color/white"
-                        />
-
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
+                </LinearLayout>
 
 
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
 
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/follow_tab"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginEnd="@dimen/distance_medium"
-                    android:layout_marginStart="@dimen/distance_medium"
-                    android:background="@drawable/circle_bg"
-                    app:tabBackground="@drawable/tab_bg"
-                    app:tabIndicatorHeight="0dp"
-                    tools:layout_editor_absoluteX="16dp">
-
-                    <com.google.android.material.tabs.TabItem
-                        android:id="@+id/tab1"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/circle_bg"
-                        android:text="@string/followers"
-
-                        />
-
-                    <com.google.android.material.tabs.TabItem
-                        android:id="@+id/tab2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/circle_bg"
-                        android:text="@string/followings" />
-
-                </com.google.android.material.tabs.TabLayout>
-
-
-            <EditText
-                android:id="@+id/edt_search"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:textSize="@dimen/text_size_medium"
-                android:hint="@string/search"
-                android:fontFamily="@font/iran_sans_web_light"
-                />
+                android:layout_height="50dp"
+                android:background="@color/colorPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+
+                >
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_sort"
+                    style="@style/materialButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cornerRadius="40dp"
+                    app:icon="@drawable/ic_sort"
+                    app:iconSize="18dp"
+                    app:iconPadding="0dp"
+                    app:iconTint="@color/md_white_1000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:rippleColor="@color/md_white_1000" />
+
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_filter"
+                    style="@style/GeneralButton.ToolbarButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="@dimen/distance_too_small"
+                    app:cornerRadius="40dp"
+                    app:icon="@drawable/ic_filter"
+                    app:iconTint="@color/md_white_1000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:iconSize="18dp"
+                    app:layout_constraintStart_toEndOf="@+id/btn_sort"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:rippleColor="@color/md_white_1000"
+                    />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/options"
+                    style="@style/materialButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cornerRadius="40dp"
+                    app:icon="@drawable/ic_selection"
+                    app:iconTint="@color/white"
+                    app:iconSize="18dp"
+                    app:iconPadding="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:rippleColor="@color/white"
+                    />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 
@@ -174,15 +177,6 @@
             android:layout_gravity="center"
             android:visibility="@{viewModel.loadingVisibility}"
             />
-
-
-
-
-
-
-
-
-
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

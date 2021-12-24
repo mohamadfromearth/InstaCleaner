@@ -3,6 +3,8 @@ package com.example.instacleaner.ui.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.ContextThemeWrapper
 import android.view.Gravity.NO_GRAVITY
 import android.view.MenuItem
@@ -26,6 +28,7 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.widget.addTextChangedListener
+import com.example.instacleaner.ui.dialog.ListDialog
 
 
 @SuppressLint("RestrictedApi")
@@ -49,20 +52,21 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         init()
         setUpTabView()
         subscribeToObservers()
-        binding.options.setOnClickListener {
+        binding.
+        options.setOnClickListener {
             showPopUpMenu(it)
         }
 
-        binding.edtSearch.addTextChangedListener {
-            viewModel.search(binding.edtSearch.text.toString())
-        }
+        binding.edtSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int){}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { viewModel.search(binding.edtSearch.text.toString()) }
+            override fun afterTextChanged(s: Editable?){}
+        })
 
         binding.btnSort.setOnClickListener {
             viewModel.btnSortClick()
         }
     }
-
-
     private fun init(){
         binding.rvFollow.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -106,13 +110,18 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             }.show(childFragmentManager,"")
         })
 
+
+        viewModel.showOptionDialog.observe(viewLifecycleOwner,{
+            ListDialog(it).show(parentFragmentManager,"")
+        })
+
     }
 
     private fun setUpRecyclerView() {
         adapter = FollowAdapter({ pos,user ->
             viewModel.onItemClickAction(pos,user)
         }){ pos,user ->
-
+           viewModel.listOptionClick(user)
         }
         binding.rvFollow.adapter = adapter
     }

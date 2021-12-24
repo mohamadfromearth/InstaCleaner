@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:paddingEnd="@dimen/distance_too_small"
+        android:paddingStart="@dimen/distance_too_small"
+        >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/row_list_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/design_default_color_on_primary"
+            app:icon="@drawable/ic_account"
+            android:textAlignment="textStart"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:iconTint="@color/design_default_color_primary_dark"
+            android:text="asdad"
+            android:fontFamily="@font/iran_sans_web_medium"
+            android:textColor="@color/black"
+            android:textAllCaps="false"
+            />
+    </LinearLayout>
+
+
+
+
+</layout>
+
