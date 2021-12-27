@@ -18,10 +18,6 @@ import com.example.instacleaner.databinding.DialogMainBinding
 import com.example.instacleaner.utils.setChildTypeface
 import com.google.android.material.tabs.TabLayout
 
-//val scale: Float = resources.displayMetrics.density
-//// Convert the dps to pixels, based on density scale
-//mGestureThreshold = (GESTURE_THRESHOLD_DP * scale + 0.5f).toInt()
-
 
 class TabDialog(
     private val dialogModels:Pair<String,ArrayList<DialogModel>>,
@@ -31,8 +27,6 @@ class TabDialog(
     private lateinit var dialogAdapter:DialogAdapter
 
     private var tabIndex  = 0
-
-//   private var isSingleTab = false
 
     private var _binding:DialogMainBinding? = null
     private val binding:DialogMainBinding
@@ -100,6 +94,7 @@ class TabDialog(
     dialogModel.tabs.forEach {
         binding.dialogTab.addTab(createTab(it.title))
     }
+        setTabViewBackground(dialogModel)
 
 
         dialogAdapter.submitList(dialogModels.second)
@@ -135,7 +130,8 @@ private fun setOptionState(option:DialogModel.Options){
         is DialogModel.Options.ByCondition -> DialogModel.Options.ByCondition(tabIndex==0)
         is DialogModel.Options.ByAvatar -> DialogModel.Options.ByAvatar(tabIndex==0)
         is DialogModel.Options.BySelection -> DialogModel.Options.BySelection(tabIndex == 0)
-        is DialogModel.Options.NoSort -> DialogModel.Options.NoSort
+        else-> DialogModel.Options.NoSort
+
     }
 }
 
@@ -150,6 +146,7 @@ private fun setOptionState(option:DialogModel.Options){
             dialogModel.tabs.forEach {
                       binding.dialogTab.addTab(createTab(it.title))
             }
+            setTabViewBackground(dialogModel)
 
             val dialogList =  dialogModels.second.cloned()
             dialogList.forEach {
@@ -162,6 +159,14 @@ private fun setOptionState(option:DialogModel.Options){
         binding.dialogRv.adapter = dialogAdapter
     }
 
+
+    private fun setTabViewBackground(dialogModel: DialogModel){
+        if (dialogModel.tabs.size == 1){
+            binding.dialogTab.setBackgroundResource(R.drawable.bg_single_tab)
+        }else{
+            binding.dialogTab.setBackgroundResource(R.drawable.tab_bg)
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

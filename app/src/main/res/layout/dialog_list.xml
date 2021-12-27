@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
   <com.google.android.material.card.MaterialCardView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -21,7 +20,6 @@
           android:id="@+id/title"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="userName"
           android:fontFamily="@font/iran_sans_web_bold"
           android:gravity="center"
           android:layout_gravity="center"
@@ -36,6 +34,7 @@
           android:layout_height="wrap_content"
           android:layout_gravity="center"
           app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+          tools:listitem="@layout/row_list_dialog"
           />
     </LinearLayout>
 

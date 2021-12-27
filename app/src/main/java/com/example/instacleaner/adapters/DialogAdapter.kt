@@ -1,6 +1,8 @@
 package com.example.instacleaner.adapters
 
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -19,19 +21,21 @@ class DialogAdapter(private val onClick : (dialogmodel:DialogModel,pos:Int)-> Un
 
 
     inner class DialogViewHolder(val binding: RowDialogBinding):RecyclerView.ViewHolder(binding.root){
+        @SuppressLint("ResourceAsColor")
         @RequiresApi(Build.VERSION_CODES.M)
         fun bind(dialogModel: DialogModel){
          binding.apply {
              setDialogModel(dialogModel)
-             materialTextView.setOnClickListener {
+             root.setOnClickListener {
                  onClick(dialogModel,bindingAdapterPosition)
              }
              if (dialogModel.isSelected) {
-                 dialogCard.setCardBackgroundColor(binding.root.context.getColor(R.color.colorPrimaryLight))
-
+                 dialogCard.setCardBackgroundColor(binding.root.context.getColor(R.color.md_green_500))
+                 tvRowDialogText.setTextColor(Color.parseColor("#FFFFFF"))
 
              } else{
                  dialogCard.setCardBackgroundColor(binding.root.context.getColor(R.color.design_default_color_on_primary))
+                 tvRowDialogText.setTextColor(Color.parseColor("#000000"))
                  //ivCheck.setBackgroundResource(R.drawable.ic_check_circle)
              }
 

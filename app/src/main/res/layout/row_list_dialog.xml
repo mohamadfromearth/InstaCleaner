@@ -19,6 +19,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             app:iconTint="@color/design_default_color_primary_dark"
             android:text="asdad"
+            app:rippleColor="@color/colorPrimary"
             android:fontFamily="@font/iran_sans_web_medium"
             android:textColor="@color/black"
             android:textAllCaps="false"

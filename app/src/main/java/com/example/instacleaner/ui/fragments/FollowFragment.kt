@@ -6,9 +6,10 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.ContextThemeWrapper
-import android.view.Gravity.NO_GRAVITY
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
@@ -27,7 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.appcompat.view.menu.MenuPopupHelper
 
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.core.widget.addTextChangedListener
+import com.example.instacleaner.ui.dialog.BottomSheet
 import com.example.instacleaner.ui.dialog.ListDialog
 
 
@@ -40,6 +41,10 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
 
     private val viewModel:FollowViewModel by viewModels()
 
+    private lateinit var  translateUp:Animation
+    private lateinit var  translateDown:Animation
+    private var isSelectFirstTime = true
+
     private var _binding: FragmentFollowBinding? = null
     private val binding: FragmentFollowBinding
         get() = _binding!!
@@ -51,23 +56,27 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         setUpRecyclerView()
         init()
         setUpTabView()
+
         subscribeToObservers()
-        binding.
-        options.setOnClickListener {
+        binding.options.setOnClickListener {
             showPopUpMenu(it)
         }
-
         binding.edtSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int){}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { viewModel.search(binding.edtSearch.text.toString()) }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.search(binding.edtSearch.text.toString()) }
             override fun afterTextChanged(s: Editable?){}
         })
-
         binding.btnSort.setOnClickListener {
             viewModel.btnSortClick()
         }
+        binding.btnSelection.setOnClickListener {
+            viewModel.btnSelectionAction()
+        }
     }
     private fun init(){
+        translateDown= AnimationUtils.loadAnimation(requireContext(),R.anim.translate_y_down)
+        translateUp= AnimationUtils.loadAnimation(requireContext(),R.anim.translate_y_up)
         binding.rvFollow.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -86,6 +95,7 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         }
     }
 
+
     private fun subscribeToObservers(){
         viewModel.adapterList.observe(viewLifecycleOwner,{
             adapter.submitList(it.toList()) {
@@ -102,7 +112,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             }.show(childFragmentManager,"")
         })
 
-
         viewModel.showSortDialog.observe(viewLifecycleOwner,{
 
             TabDialog(it){ dialogModel ->
@@ -110,18 +119,50 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             }.show(childFragmentManager,"")
         })
 
+        viewModel.showOptionDialog.observe(viewLifecycleOwner,{ pair ->
+            ListDialog(pair){
+                viewModel.itemOptionAction(it)
+            }.show(parentFragmentManager,"")
+        })
 
-        viewModel.showOptionDialog.observe(viewLifecycleOwner,{
-            ListDialog(it).show(parentFragmentManager,"")
+        viewModel.showSelectBottomSheet.observe(viewLifecycleOwner,{
+            BottomSheet(it){
+
+            }.show(parentFragmentManager,"")
+        })
+
+        viewModel.selectionCount.observe(viewLifecycleOwner,{
+            binding.btnSelection.text = "${requireContext().getString(R.string.select)} $it"
+            if (it>0){
+                if (isSelectFirstTime){
+                    binding.btnSelection.visibility = View.VISIBLE
+                    binding.btnSelection.startAnimation(translateUp)
+                    isSelectFirstTime = false
+                }
+            }else{
+                if (!isSelectFirstTime){
+                    binding.btnSelection.visibility = View.GONE
+                    binding.btnSelection.startAnimation(translateDown)
+                    isSelectFirstTime = true
+                }
+
+            }
+
+
         })
 
     }
 
+
+
+
     private fun setUpRecyclerView() {
         adapter = FollowAdapter({ pos,user ->
-            viewModel.onItemClickAction(pos,user)
+            viewModel.itemClickAction(pos,user)
+        },{pos, user ->
+            viewModel.itemListOptionAction(pos,user)
         }){ pos,user ->
-           viewModel.listOptionClick(user)
+           viewModel.itemLongClickAction(pos,user)
         }
         binding.rvFollow.adapter = adapter
     }
@@ -131,18 +172,19 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
     @SuppressLint("RestrictedApi")
     private fun showPopUpMenu(v:View){
         val wrapper = ContextThemeWrapper(requireContext(),R.style.AppTheme_TextAppearance_Popup)
+        val itemWrapper = ContextThemeWrapper(requireContext(),R.style.BasePopupMenu)
         val popupMenu  = PopupMenu(wrapper,v)
         popupMenu.inflate(R.menu.follow_menu)
 
-        val menuBuilder = MenuBuilder(requireContext())
+        val menuBuilder = MenuBuilder(wrapper)
 
         menuBuilder.setCallback(this)
         requireActivity().menuInflater.inflate(R.menu.follow_menu,menuBuilder)
         val menuHelper = MenuPopupHelper(
-            requireContext(),
+            itemWrapper,
             menuBuilder ,v,false,0,R.style.BasePopupMenu
         )
-        menuHelper.gravity = NO_GRAVITY
+//        menuHelper.gravity = Gravity.RIGHT
 
         menuHelper.setForceShowIcon(true)
         menuHelper.show()

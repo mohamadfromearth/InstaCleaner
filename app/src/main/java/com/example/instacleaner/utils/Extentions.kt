@@ -90,6 +90,11 @@ fun ViewGroup.setChildTextSize(size: Float) {
 }
 
 
+fun dpToPx(dp:Float) =
+    dp * App.getInstance().resources.displayMetrics.density
+
+
+
 fun convertPXtoSP(px: Float): Float {
     return px / App.getInstance().resources.displayMetrics.scaledDensity
 }

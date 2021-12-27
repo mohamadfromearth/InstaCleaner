@@ -19,6 +19,7 @@ data class DialogModel(
         class Avatar(val hasAvatar : Boolean) : Options()
         class Verify(val isVerify:Boolean):Options()
         class Select(val isSelected:Boolean):Options()
+        object Search:Options()
         class FollowBack(val isFollowBack:Boolean):Options()
         object NoFilter : Options()
         class ByUsername(val state:Boolean):Options()

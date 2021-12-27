@@ -268,4 +268,6 @@
     <string name="to_download_click_after_copy">برای دانلود، بعد از کپی کردن آدرس پست، کلیک کن</string>
     <string name="preparing">در حال آماده سازی</string>
     <string name="invalid_link">لینک نامعتبر</string>
+    <string name="sort_list">چیدمان</string>
+    <string name="with_out_sort">چیدمان پیش فرض</string>
 </resources>

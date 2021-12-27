@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/bg_green.xml" value="0.17685185185185184" />
+        <entry key="app/src/main/res/drawable/bg_oval.xml" value="0.10729166666666666" />
         <entry key="app/src/main/res/drawable/bg_single_tab.xml" value="0.3" />
+        <entry key="app/src/main/res/drawable/bg_up_rounded.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/border.xml" value="0.2125" />
         <entry key="app/src/main/res/drawable/btn_purchase_layer1.xml" value="0.21458333333333332" />
         <entry key="app/src/main/res/drawable/circle_bg.xml" value="0.375" />
@@ -19,21 +22,24 @@
         <entry key="app/src/main/res/drawable/ic_selection.xml" value="0.2125" />
         <entry key="app/src/main/res/drawable/ray.xml" value="0.30648148148148147" />
         <entry key="app/src/main/res/drawable/rounded.xml" value="0.12962962962962962" />
+        <entry key="app/src/main/res/drawable/shape_round_bottom_corner.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/tab_bg.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/tab_color_selector.xml" value="0.19074074074074074" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1733097880928355" />
-        <entry key="app/src/main/res/layout/dialog_list.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/dialog_bottom_sheet.xml" value="0.15353260869565216" />
+        <entry key="app/src/main/res/layout/dialog_list.xml" value="0.1" />
         <entry key="app/src/main/res/layout/dialog_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_favorites.xml" value="0.1733097880928355" />
         <entry key="app/src/main/res/layout/fragment_follow.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_more.xml" value="0.1733097880928355" />
+        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.15353260869565216" />
         <entry key="app/src/main/res/layout/row_account.xml" value="0.1868164398390476" />
         <entry key="app/src/main/res/layout/row_add_account.xml" value="0.25" />
         <entry key="app/src/main/res/layout/row_dialog.xml" value="0.375" />
         <entry key="app/src/main/res/layout/row_follow.xml" value="0.3211684481914424" />
-        <entry key="app/src/main/res/layout/row_list_dialog.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/row_list_dialog.xml" value="0.15353260869565216" />
         <entry key="app/src/main/res/menu/follow_menu.xml" value="0.19635416666666666" />
         <entry key="app/src/main/res/menu/insta_cleaner_bottom_nav.xml" value="0.3287037037037037" />
       </map>

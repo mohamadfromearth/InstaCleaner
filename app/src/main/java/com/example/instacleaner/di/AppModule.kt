@@ -1,6 +1,7 @@
 package com.example.instacleaner.di
 
 import android.annotation.SuppressLint
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
@@ -27,6 +28,13 @@ object AppModule {
         context.applicationContext.getSharedPreferences(APPLICATION_SHARE_PREF,
             Context.MODE_PRIVATE
         )
+
+
+
+    @Singleton
+    @Provides
+    fun providesClipboardManager(@ApplicationContext context:Context):ClipboardManager =
+        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
 
 

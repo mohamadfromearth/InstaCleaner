@@ -38,6 +38,7 @@
         <item name="android:insetBottom">0dp</item>
         <item name="iconPadding">0dp</item>
         <item name="iconGravity">textStart</item>
+        <item name="android:shape">oval</item>
     </style>
 
 
@@ -53,8 +54,8 @@
     <style name="GeneralButton.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="fontFamily">@font/iran_sans_web_light</item>
         <item name="android:textSize">@dimen/text_size_medium</item>
-        <item name="iconTint">@color/colorPrimary</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="iconTint">@color/md_green_500</item>
+        <item name="android:textColor">@color/md_green_500</item>
     </style>
     <style name="GeneralButton.ToolbarButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="fontFamily">@font/iran_sans_web_light</item>
@@ -79,11 +80,11 @@
 
 
     <style name="BasePopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">end</item>
+<!--        <item name="android:layout_width">wrap_content</item>-->
+<!--        <item name="android:layout_height">wrap_content</item>-->
+        <item name="android:layout_gravity">right</item>
         <item name="android:fontFamily">@font/iran_sans_web_bold</item>
-        <item name="android:layoutDirection">rtl</item>
+<!--        <item name="android:layoutDirection">rtl</item>-->
         <item name="android:overlapAnchor">true</item>
         <item name="android:dropDownVerticalOffset">0dp</item>
         <item name="android:dropDownHorizontalOffset">0dp</item>
@@ -93,6 +94,13 @@
 
     <style name="Widget.BottomNavigationView" parent="Widget.Design.BottomNavigationView">
         <item name="fontFamily">@font/iran_sans_web_light</item>
+    </style>
+
+
+    <style name="ShapeAppearanceOverlay.MyApp.Button.Circle" parent="">
+
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 
 

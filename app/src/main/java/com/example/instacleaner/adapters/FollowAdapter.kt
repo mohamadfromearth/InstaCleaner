@@ -11,16 +11,21 @@ import com.example.instacleaner.R
 import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.databinding.RowFollowBinding
 
-class FollowAdapter(private val onUserClick:(pos:Int,user:User) ->Unit,private val onOptionClick:(pos:Int,user:User) -> Unit): ListAdapter<User,FollowAdapter.FollowViewHolder>(DiffCallback()) {
+class FollowAdapter(private val onUserClick:(pos:Int,user:User) ->Unit,private val onOptionClick:(pos:Int,user:User) -> Unit,private val onLongClick:(pos:Int,user:User) -> Unit): ListAdapter<User,FollowAdapter.FollowViewHolder>(DiffCallback()) {
 
     inner class FollowViewHolder(private val binding:RowFollowBinding):RecyclerView.ViewHolder(binding.root){
           fun bind(user:User){
            binding.apply {
                setUser(user)
                if (user.isSelected) ivCheck.visibility = View.VISIBLE else ivCheck.visibility = View.GONE
+               if (user.is_verified) ivVerified.visibility = View.VISIBLE else ivVerified.visibility = View.GONE
                root.setOnClickListener {
                    onUserClick(bindingAdapterPosition,user)
                }
+              root.setOnLongClickListener {
+                  onLongClick(bindingAdapterPosition,user)
+                  true
+              }
                ivOption.setOnClickListener {
                    onOptionClick(bindingAdapterPosition,user)
                }

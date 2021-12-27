@@ -268,5 +268,7 @@
     <string name="to_download_click_after_copy">To download post, click me after copying post url</string>
     <string name="preparing">Preparing</string>
     <string name="invalid_link">Invalid Link</string>
+    <string name="sort_list">Sort</string>
+    <string name="with_out_sort">بدون چیدمان</string>
 
 </resources>

@@ -9,15 +9,22 @@ import com.example.instacleaner.R
 import com.example.instacleaner.data.local.ListDialogModel
 import com.example.instacleaner.databinding.RowListDialogBinding
 
-class ListDialogAdapter(private val options:List<ListDialogModel>):RecyclerView.Adapter<ListDialogAdapter.DialogListViewHolder>() {
+class ListDialogAdapter(private val options:List<ListDialogModel>,private val itemClick:(listDialogModel:ListDialogModel)->Unit):RecyclerView.Adapter<ListDialogAdapter.DialogListViewHolder>() {
 
 
 
     inner class DialogListViewHolder(val binding:RowListDialogBinding):RecyclerView.ViewHolder(binding.root){
         @SuppressLint("UseCompatLoadingForDrawables")
         fun bind(option:ListDialogModel){
-            binding.rowListBtn.icon = binding.root.context.getDrawable(option.icon)
-            binding.rowListBtn.text = option.title
+            binding.apply {
+                rowListBtn.icon = binding.root.context.getDrawable(option.icon)
+                rowListBtn.text = option.title
+                rowListBtn.setOnClickListener {
+                    itemClick(option)
+                }
+            }
+
+
         }
     }
 
