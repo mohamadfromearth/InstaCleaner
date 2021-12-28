@@ -28,8 +28,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.appcompat.view.menu.MenuPopupHelper
 
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.navigation.fragment.findNavController
+import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.ui.dialog.BottomSheet
 import com.example.instacleaner.ui.dialog.ListDialog
+import com.example.instacleaner.utils.translateNumber
+import kotlin.system.measureTimeMillis
+import kotlin.time.ExperimentalTime
+import kotlin.time.TimedValue
+import kotlin.time.measureTimedValue
 
 
 @SuppressLint("RestrictedApi")
@@ -56,23 +63,9 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         setUpRecyclerView()
         init()
         setUpTabView()
-
         subscribeToObservers()
-        binding.options.setOnClickListener {
-            showPopUpMenu(it)
-        }
-        binding.edtSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int){}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.search(binding.edtSearch.text.toString()) }
-            override fun afterTextChanged(s: Editable?){}
-        })
-        binding.btnSort.setOnClickListener {
-            viewModel.btnSortClick()
-        }
-        binding.btnSelection.setOnClickListener {
-            viewModel.btnSelectionAction()
-        }
+
+
     }
     private fun init(){
         translateDown= AnimationUtils.loadAnimation(requireContext(),R.anim.translate_y_down)
@@ -89,21 +82,51 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             }
         })
         viewModel.onStart()
-
         binding.btnFilter.setOnClickListener {
             viewModel.btnFilterAction()
+        }
+        binding.options.setOnClickListener {
+            showPopUpMenu(it)
+        }
+        binding.edtSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int){}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.search(binding.edtSearch.text.toString()) }
+            override fun afterTextChanged(s: Editable?){}
+        })
+        binding.btnSort.setOnClickListener {
+            viewModel.btnSortClick()
+        }
+        binding.btnSelection.setOnClickListener {
+            viewModel.btnSelectionAction()
+        }
+        binding.btnPaginateState.setOnClickListener {
+            viewModel.setPaginateState()
         }
     }
 
 
+
     private fun subscribeToObservers(){
+
         viewModel.adapterList.observe(viewLifecycleOwner,{
+
+            if (it.isEmpty()) adapter.submitList(null)
+
             adapter.submitList(it.toList()) {
-                      if (viewModel.shouldScroll){
-                          binding.rvFollow.scrollToPosition(0)
-                          viewModel.shouldScroll = false
-                      }
-            }
+
+                        if (viewModel.shouldScroll){
+                            binding.rvFollow.scrollToPosition(0)
+                            viewModel.shouldScroll = false
+                        }
+                    }
+
+
+
+
+
+
+
         })
 
         viewModel.showFilterDialog.observe(viewLifecycleOwner,{
@@ -132,23 +155,35 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         })
 
         viewModel.selectionCount.observe(viewLifecycleOwner,{
-            binding.btnSelection.text = "${requireContext().getString(R.string.select)} $it"
+            binding.btnSelection.text = it.translateNumber()
             if (it>0){
                 if (isSelectFirstTime){
                     binding.btnSelection.visibility = View.VISIBLE
-                    binding.btnSelection.startAnimation(translateUp)
+//                    binding.btnSelection.startAnimation(translateUp)
+                    binding.btnSelection.animate().scaleX(1F).scaleY(1F).alpha(1F).setDuration(300).setStartDelay(0).start()
                     isSelectFirstTime = false
                 }
             }else{
                 if (!isSelectFirstTime){
-                    binding.btnSelection.visibility = View.GONE
-                    binding.btnSelection.startAnimation(translateDown)
+//                    binding.btnSelection.visibility = View.GONE
+//                    binding.btnSelection.startAnimation(translateDown)
+                    binding.btnSelection.animate().scaleX(0.0F).scaleY(0.0F).alpha(0F).setDuration(300).setStartDelay(0).withEndAction {
+                        binding.btnSelection.visibility = View.GONE
+                    }.start()
                     isSelectFirstTime = true
                 }
 
             }
 
 
+        })
+
+        viewModel.btnPaginateSateIcon.observe(viewLifecycleOwner,{
+            binding.btnPaginateState.setIconResource(it)
+        })
+
+        viewModel.navToProfileFragment.observe(viewLifecycleOwner,{
+            findNavController().navigate(FollowFragmentDirections.actionFollowFragment2ToProfileFragment())
         })
 
     }
@@ -164,6 +199,7 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         }){ pos,user ->
            viewModel.itemLongClickAction(pos,user)
         }
+        binding.rvFollow.setHasFixedSize(true)
         binding.rvFollow.adapter = adapter
     }
 
@@ -202,6 +238,7 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 log("tabSelect ${tab?.position}")
                 tab?.let {
+
                     viewModel.tabSelectAction(it.position)
 
                 }

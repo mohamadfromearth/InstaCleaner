@@ -30,6 +30,8 @@
         android:label="FollowFragment" >
         <action
             android:id="@+id/action_followFragment2_to_profileFragment"
+            app:enterAnim="@anim/slide_in"
+            app:popEnterAnim="@anim/slide_out"
             app:destination="@id/profileFragment" />
     </fragment>
     <fragment
@@ -39,5 +41,6 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.instacleaner.ui.fragments.ProfileFragment"
-        android:label="ProfileFragment" />
+        android:label="ProfileFragment"
+        />
 </navigation>

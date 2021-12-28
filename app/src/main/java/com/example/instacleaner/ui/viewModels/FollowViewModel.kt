@@ -32,11 +32,9 @@ import javax.inject.Inject
 class FollowViewModel @Inject constructor(
     private val accountManager: AccountManager,
     private val repository: InstaRepository,
-    private val app:App,
+    private val app: App,
     private val clipboardManager: ClipboardManager
-    ) : ViewModel() {
-
-
+) : ViewModel() {
 
 
     var shouldScroll = false
@@ -46,6 +44,7 @@ class FollowViewModel @Inject constructor(
     private var shouldSearchAgain = false
     private var isFollowerSelectionMode = false
     private var isFollowingSelectionMode = false
+    private var isGetFollowerLoopOn = true
     private var maxId = ""
     private var searchQuery = ""
     private var lastSelectedUserIndex = 0
@@ -61,60 +60,66 @@ class FollowViewModel @Inject constructor(
     private var followingSelectionCount = 0
 
 
+
+
+    private var followerFilter: DialogModel.Options = DialogModel.Options.NoFilter
+    private var followingFilter: DialogModel.Options = DialogModel.Options.NoFilter
+    private var followerSort: DialogModel.Options = DialogModel.Options.NoSort
+    private var followingSort: DialogModel.Options = DialogModel.Options.NoSort
+
+    private var pagingState: PagingState = PagingState.PauseState
+
+
     val loadingVisibility = ObservableInt(View.GONE)
-    val btnSelectionChildVisibility = ObservableInt(View.GONE)
-    val btnSelectionVisibility = ObservableInt(View.GONE)
-
-
-    private var followerFilter : DialogModel.Options = DialogModel.Options.NoFilter
-    private var followingFilter : DialogModel.Options = DialogModel.Options.NoFilter
-    private var followerSort:DialogModel.Options =  DialogModel.Options.NoSort
-    private var followingSort:DialogModel.Options = DialogModel.Options.NoSort
-
-    private var pagingState:PagingState = PagingState.AutoState
-
-
     val adapterList = MutableLiveData<ArrayList<User>>()
-    val showFilterDialog = SingleLiveEvent<Pair<String,ArrayList<DialogModel>>>()
-    val showSortDialog = SingleLiveEvent<Pair<String,ArrayList<DialogModel>>>()
-    val showOptionDialog = SingleLiveEvent<Pair<String,List<ListDialogModel>>>()
-    val showSelectBottomSheet = SingleLiveEvent<Pair<String,List<ListDialogModel>>>()
+    val showFilterDialog = SingleLiveEvent<Pair<String, ArrayList<DialogModel>>>()
+    val showSortDialog = SingleLiveEvent<Pair<String, ArrayList<DialogModel>>>()
+    val showOptionDialog = SingleLiveEvent<Pair<String, List<ListDialogModel>>>()
+    val showSelectBottomSheet = SingleLiveEvent<Pair<String, List<ListDialogModel>>>()
+    val navToProfileFragment = SingleLiveEvent<Boolean>()
     val selectionCount = MutableLiveData<Int>()
+    val btnPaginateSateIcon = MutableLiveData<Int>()
 
 
     init {
+        btnPaginateSateIcon.value = R.drawable.ic_play
         getFollowers()
-         getFollowings()
+        getFollowings()
     }
 
-    fun onStart(){
-        if (currentAccount.user.pk != accountManager.getCurrentAccount().user.pk){
+    fun onStart() {
+        if (currentAccount.user.pk != accountManager.getCurrentAccount().user.pk) {
             currentAccount = accountManager.getCurrentAccount()
             followerList.clear()
             followingList.clear()
+            followerSelectionCount = 0
+            followingSelectionCount = 0
+            selectionCount.value = followerSelectionCount
             getFollowings()
             getFollowers()
         }
     }
 
-    fun itemClickAction(pos:Int, user:User){
+    fun itemClickAction(pos: Int, user: User) {
         lastSelectedUserIndex = pos
-        when(tabIndex){
-            FOLLOWER_TAB_INDEX -> if (isFollowerSelectionMode) handleFollowerItemSelection(pos)
-            FOLLOWING_TAB_INDEX -> if (isFollowingSelectionMode) handleFollowingItemSelection(pos)
+        when (tabIndex) {
+            FOLLOWER_TAB_INDEX -> if (isFollowerSelectionMode) handleFollowerItemSelection(pos) else navToProfileFragment.value =
+                true
+            FOLLOWING_TAB_INDEX -> if (isFollowingSelectionMode) handleFollowingItemSelection(pos) else navToProfileFragment.value =
+                true
         }
     }
 
-    private fun handleFollowerItemSelection(pos:Int){
+    private fun handleFollowerItemSelection(pos: Int) {
         val currentList = adapterList.value!!.cloned()
         val selectValue = currentList[pos].isSelected.not()
         setFollowerSelectionCount(selectValue)
         currentList[pos].isSelected = selectValue
-        followerList.first {it.username ==currentList[pos].username }.isSelected = selectValue
+        followerList.first { it.username == currentList[pos].username }.isSelected = selectValue
         adapterList.value = currentList
     }
 
-    private fun handleFollowingItemSelection(pos:Int){
+    private fun handleFollowingItemSelection(pos: Int) {
         val currentList = adapterList.value!!.cloned()
         val selectValue = currentList[pos].isSelected.not()
         setFollowingSelectionCount(selectValue)
@@ -123,9 +128,9 @@ class FollowViewModel @Inject constructor(
         adapterList.value = currentList
     }
 
-    fun itemLongClickAction(pos:Int,user:User){
+    fun itemLongClickAction(pos: Int, user: User) {
         lastSelectedUserIndex = pos
-        when(tabIndex){
+        when (tabIndex) {
             FOLLOWER_TAB_INDEX -> if (isFollowerSelectionMode.not()) {
                 handleFollowerItemSelection(pos)
                 isFollowerSelectionMode = true
@@ -137,24 +142,33 @@ class FollowViewModel @Inject constructor(
         }
     }
 
-    fun btnSelectionAction(){
-          if (tabIndex == 0){
-              if (followerSelectionCount > 0)
-                   showSelectBottomSheet.value = Pair("",followerSelectionDialogList)
-          }else{
-             if (followingSelectionCount > 0)
-                   showSelectBottomSheet.value = Pair("",followingSelectionDialogList)
-          }
+    fun tabSelectAction(position: Int) {
+        shouldScroll = true
+        tabIndex = position
+        setLoading()
+        adapterList.value = arrayListOf()
+        setList()
+
     }
 
-    fun itemOptionAction(option:ListDialogModel.Options){
+    fun btnSelectionAction() {
+        if (tabIndex == 0) {
+            if (followerSelectionCount > 0)
+                showSelectBottomSheet.value = Pair("", followerSelectionDialogList)
+        } else {
+            if (followingSelectionCount > 0)
+                showSelectBottomSheet.value = Pair("", followingSelectionDialogList)
+        }
+    }
+
+    fun itemOptionAction(option: ListDialogModel.Options) {
         val user = adapterList.value!![lastSelectedUserIndex]
-        when(option){
+        when (option) {
             ListDialogModel.Options.CopyUsername -> {
-                val clip = ClipData.newPlainText(user.username,user.username)
+                val clip = ClipData.newPlainText(user.username, user.username)
                 clipboardManager.setPrimaryClip(clip)
             }
-            ListDialogModel.Options.CopyLink ->{
+            ListDialogModel.Options.CopyLink -> {
 
             }
             ListDialogModel.Options.GoToInstagram -> TODO()
@@ -165,37 +179,80 @@ class FollowViewModel @Inject constructor(
     }
 
 
-
-    private fun setFollowingSelectionCount(isActionSelect:Boolean){
-        if (isActionSelect){
-            followingSelectionCount ++
-        }else{
-            followingSelectionCount --
+    private fun setFollowingSelectionCount(isActionSelect: Boolean) {
+        if (isActionSelect) {
+            followingSelectionCount++
+        } else {
+            followingSelectionCount--
             if (followingSelectionCount == 0) isFollowingSelectionMode = false
         }
         selectionCount.value = followingSelectionCount
     }
 
-    private fun setFollowerSelectionCount(isActionSelect:Boolean){
-        if (isActionSelect){
-            followerSelectionCount ++
+    private fun setFollowerSelectionCount(isActionSelect: Boolean) {
+        if (isActionSelect) {
+            followerSelectionCount++
 
-        }else{
-            followerSelectionCount --
+        } else {
+            followerSelectionCount--
             if (followerSelectionCount == 0) isFollowerSelectionMode = false
         }
         selectionCount.value = followerSelectionCount
     }
 
     fun paginate() {
-         if (tabIndex == 0 && isRequesting.not() && maxId.isNotEmpty() ){
-             followerSort = DialogModel.Options.NoSort
-             getFollowers()
+        when (pagingState) {
+            PagingState.AutoState -> {
+                if (tabIndex == FOLLOWER_TAB_INDEX && isRequesting.not() && maxId.isNotEmpty() ){
+                    followerSort = DialogModel.Options.NoSort
+                    getFollowers()
+                }
+            }
+            PagingState.PauseState -> {
+                if (tabIndex == FOLLOWER_TAB_INDEX && isRequesting.not() && maxId.isNotEmpty()) {
+                    followerSort = DialogModel.Options.NoSort
 
-         }
+                }
+            }
+            PagingState.PlayState -> Unit
+        }
+
     }
 
-   private fun getFollowers() = viewModelScope.launch {
+    private fun getFollowersLoop() {
+        if (maxId.isNotEmpty() && isGetFollowerLoopOn) {
+            getFollowers() {
+                if (maxId.isNotEmpty()) {
+                    getFollowersLoop()
+                }
+            }
+        }
+    }
+
+    fun setPaginateState() {
+        pagingState = when (pagingState) {
+           PagingState.AutoState -> {
+               btnPaginateSateIcon.value = R.drawable.ic_pause
+               isGetFollowerLoopOn = true
+               getFollowersLoop()
+               PagingState.PlayState
+           }
+            PagingState.PlayState -> {
+                btnPaginateSateIcon.value = R.drawable.ic_play
+                isGetFollowerLoopOn = false
+                PagingState.PauseState
+            }
+            PagingState.PauseState -> {
+                btnPaginateSateIcon.value = R.drawable.ic_auto
+                isGetFollowerLoopOn = true
+                //getFollowersLoop()
+                PagingState.AutoState
+            }
+
+        }
+    }
+
+    private fun getFollowers(onSuccess: (() -> Unit)? = null) = viewModelScope.launch {
         followersLoadingVisibility = true
         isRequesting = true
         setLoading()
@@ -207,13 +264,14 @@ class FollowViewModel @Inject constructor(
                 setLoading()
                 setList()
                 isRequesting = false
-
+                onSuccess?.let { it() }
             }
             is Resource.Error -> {
                 isRequesting = false
                 followersLoadingVisibility = false
             }
         }
+
     }
 
 
@@ -241,22 +299,22 @@ class FollowViewModel @Inject constructor(
         }
     }
 
-    fun setFilter(options:DialogModel.Options){
+    fun setFilter(options: DialogModel.Options) {
         shouldScroll = true
-        if (tabIndex == 0){
+        if (tabIndex == 0) {
             followerFilter = options
-        }else{
+        } else {
             followingFilter = options
         }
         setList()
 
     }
 
-    fun setSort(options:DialogModel.Options){
+    fun setSort(options: DialogModel.Options) {
         shouldScroll = true
-        if (tabIndex==0){
+        if (tabIndex == 0) {
             followerSort = options
-        }else{
+        } else {
             followingSort = options
         }
         setList()
@@ -272,273 +330,399 @@ class FollowViewModel @Inject constructor(
             selectionCount.value = followingSelectionCount
             adapterList.value = sort(followingSort,filter(followingList,followingFilter))
         }
-     }
+    }
 
     private val itemOptionDialogList = listOf(
-        ListDialogModel(app.getString(R.string.view_profile),R.drawable.ic_account,ListDialogModel.Options.ShowProfile),
-        ListDialogModel(app.getString(R.string.view_image),R.drawable.ic_image,ListDialogModel.Options.ShowImage),
-        ListDialogModel(app.getString(R.string.goto_instagram),R.drawable.ic_instagram,ListDialogModel.Options.GoToInstagram),
-        ListDialogModel(app.getString(R.string.copy_link),R.drawable.ic_link,ListDialogModel.Options.CopyLink),
-        ListDialogModel(app.getString(R.string.copy_username),R.drawable.ic_copy,ListDialogModel.Options.CopyUsername),
+        ListDialogModel(
+            app.getString(R.string.view_profile),
+            R.drawable.ic_account,
+            ListDialogModel.Options.ShowProfile
+        ),
+        ListDialogModel(
+            app.getString(R.string.view_image),
+            R.drawable.ic_image,
+            ListDialogModel.Options.ShowImage
+        ),
+        ListDialogModel(
+            app.getString(R.string.goto_instagram),
+            R.drawable.ic_instagram,
+            ListDialogModel.Options.GoToInstagram
+        ),
+        ListDialogModel(
+            app.getString(R.string.copy_link),
+            R.drawable.ic_link,
+            ListDialogModel.Options.CopyLink
+        ),
+        ListDialogModel(
+            app.getString(R.string.copy_username),
+            R.drawable.ic_copy,
+            ListDialogModel.Options.CopyUsername
+        ),
     )
 
     private val followerSelectionDialogList = listOf(
-        ListDialogModel(app.getString(R.string.follow),R.drawable.ic_add,ListDialogModel.Options.FollowUser),
-        ListDialogModel(app.getString(R.string.remove_follower),R.drawable.ic_delete,ListDialogModel.Options.DeleteFollower),
-        ListDialogModel(app.getString(R.string.block),R.drawable.ic_block,ListDialogModel.Options.Block),
-        ListDialogModel(app.getString(R.string.download_profile_images),R.drawable.ic_download,ListDialogModel.Options.DownloadProfile)
+        ListDialogModel(
+            app.getString(R.string.follow),
+            R.drawable.ic_add,
+            ListDialogModel.Options.FollowUser
+        ),
+        ListDialogModel(
+            app.getString(R.string.remove_follower),
+            R.drawable.ic_delete,
+            ListDialogModel.Options.DeleteFollower
+        ),
+        ListDialogModel(
+            app.getString(R.string.block),
+            R.drawable.ic_block,
+            ListDialogModel.Options.Block
+        ),
+        ListDialogModel(
+            app.getString(R.string.download_profile_images),
+            R.drawable.ic_download,
+            ListDialogModel.Options.DownloadProfile
+        )
     )
 
     private val followingSelectionDialogList = listOf(
-        ListDialogModel(app.getString(R.string.unfollow),R.drawable.ic_remove,ListDialogModel.Options.FollowUser),
-        ListDialogModel(app.getString(R.string.block),R.drawable.ic_block,ListDialogModel.Options.Block),
-        ListDialogModel(app.getString(R.string.download_profile_images),R.drawable.ic_download,ListDialogModel.Options.DownloadProfile),
+        ListDialogModel(
+            app.getString(R.string.unfollow),
+            R.drawable.ic_remove,
+            ListDialogModel.Options.FollowUser
+        ),
+        ListDialogModel(
+            app.getString(R.string.block),
+            R.drawable.ic_block,
+            ListDialogModel.Options.Block
+        ),
+        ListDialogModel(
+            app.getString(R.string.download_profile_images),
+            R.drawable.ic_download,
+            ListDialogModel.Options.DownloadProfile
+        ),
     )
 
     private fun followingFilterDialogList() =
         arrayListOf(
-            DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.Options.Status(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.has_pic)),Tab(app.getString(R.string.no_pic))),app.getString(R.string.by_profile_picture),DialogModel.Options.Avatar(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify),DialogModel.Options.Verify(false)),
-           // DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
-            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection),DialogModel.Options.Select(true)),
-            DialogModel(listOf(Tab(app.getString(R.string.they_following_back)),Tab(app.getString(R.string.they_not_following_back))),app.getString(R.string.by_followback),DialogModel.Options.FollowBack(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.Options.NoFilter)
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.public_)),
+                    Tab(app.getString(R.string.private_))
+                ), app.getString(R.string.by_status), DialogModel.Options.Status(false)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.has_pic)),
+                    Tab(app.getString(R.string.no_pic))
+                ), app.getString(R.string.by_profile_picture), DialogModel.Options.Avatar(false)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.verified_accounts)),
+                    Tab(app.getString(R.string.not_verified_accounts))
+                ), app.getString(R.string.by_verify), DialogModel.Options.Verify(false)
+            ),
+            // DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.no_verified_account))),app.getString(R.string.by_verify)),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.selected)),
+                    Tab(app.getString(R.string.not_selected))
+                ), app.getString(R.string.by_selection), DialogModel.Options.Select(true)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.they_following_back)),
+                    Tab(app.getString(R.string.they_not_following_back))
+                ), app.getString(R.string.by_followback), DialogModel.Options.FollowBack(false)
+            ),
+            DialogModel(
+                listOf(Tab(app.getString(R.string.remove_filter))),
+                app.getString(R.string.no_filter),
+                DialogModel.Options.NoFilter
+            )
         )
 
     private fun followerFilterDialogList() =
         arrayListOf(
-    DialogModel(listOf(Tab(app.getString(R.string.public_)),Tab(app.getString(R.string.private_))),app.getString(R.string.by_status),DialogModel.Options.Status(false)),
-    DialogModel(listOf(Tab(app.getString(R.string.has_pic)),Tab(app.getString(R.string.no_pic))),app.getString(R.string.by_profile_picture),DialogModel.Options.Avatar(false)),
-    DialogModel(listOf(Tab(app.getString(R.string.verified_accounts)),Tab(app.getString(R.string.not_verified_accounts))),app.getString(R.string.by_verify),DialogModel.Options.Verify(false)),
-            DialogModel(listOf(Tab(app.getString(R.string.selected)),Tab(app.getString(R.string.not_selected))),app.getString(R.string.by_selection),DialogModel.Options.Select(true)),
-    DialogModel(listOf(Tab(app.getString(R.string.i_following_back)),Tab(app.getString(R.string.i_not_following_back))),app.getString(R.string.by_followback),DialogModel.Options.FollowBack(false)),
-    DialogModel(listOf(Tab(app.getString(R.string.remove_filter))),app.getString(R.string.no_filter),DialogModel.Options.NoFilter)
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.public_)),
+                    Tab(app.getString(R.string.private_))
+                ), app.getString(R.string.by_status), DialogModel.Options.Status(false)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.has_pic)),
+                    Tab(app.getString(R.string.no_pic))
+                ), app.getString(R.string.by_profile_picture), DialogModel.Options.Avatar(false)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.verified_accounts)),
+                    Tab(app.getString(R.string.not_verified_accounts))
+                ), app.getString(R.string.by_verify), DialogModel.Options.Verify(false)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.selected)),
+                    Tab(app.getString(R.string.not_selected))
+                ), app.getString(R.string.by_selection), DialogModel.Options.Select(true)
+            ),
+            DialogModel(
+                listOf(
+                    Tab(app.getString(R.string.i_following_back)),
+                    Tab(app.getString(R.string.i_not_following_back))
+                ), app.getString(R.string.by_followback), DialogModel.Options.FollowBack(false)
+            ),
+            DialogModel(
+                listOf(Tab(app.getString(R.string.remove_filter))),
+                app.getString(R.string.no_filter),
+                DialogModel.Options.NoFilter
+            )
         )
 
 
     private fun sortList() = arrayListOf(
-        DialogModel(listOf(Tab(app.getString(R.string.a_to_z)),Tab(app.getString(R.string.z_to_a))),app.getString(R.string.by_username),DialogModel.Options.ByUsername(true)),
-        DialogModel(listOf(Tab(app.getString(R.string.public_first)),Tab(app.getString(R.string.private_first))),app.getString(R.string.by_status),DialogModel.Options.ByCondition(true)),
-        DialogModel(listOf(Tab(app.getString(R.string.pic_first)),Tab(app.getString(R.string.no_pic_first))),app.getString(R.string.by_profile_picture),DialogModel.Options.ByAvatar(true)),
-        DialogModel(listOf(Tab(app.getString(R.string.selected_first)),Tab(app.getString(R.string.not_selected_first))),app.getString(R.string.by_selection),DialogModel.Options.BySelection(true)),
-        DialogModel(listOf(Tab(app.getString(R.string.with_out_sort))),app.getString(R.string.with_out_sort),DialogModel.Options.NoSort)
+        DialogModel(
+            listOf(
+                Tab(app.getString(R.string.a_to_z)),
+                Tab(app.getString(R.string.z_to_a))
+            ), app.getString(R.string.by_username), DialogModel.Options.ByUsername(true)
+        ),
+        DialogModel(
+            listOf(
+                Tab(app.getString(R.string.public_first)),
+                Tab(app.getString(R.string.private_first))
+            ), app.getString(R.string.by_status), DialogModel.Options.ByCondition(true)
+        ),
+        DialogModel(
+            listOf(
+                Tab(app.getString(R.string.pic_first)),
+                Tab(app.getString(R.string.no_pic_first))
+            ), app.getString(R.string.by_profile_picture), DialogModel.Options.ByAvatar(true)
+        ),
+        DialogModel(
+            listOf(
+                Tab(app.getString(R.string.selected_first)),
+                Tab(app.getString(R.string.not_selected_first))
+            ), app.getString(R.string.by_selection), DialogModel.Options.BySelection(true)
+        ),
+        DialogModel(
+            listOf(Tab(app.getString(R.string.with_out_sort))),
+            app.getString(R.string.with_out_sort),
+            DialogModel.Options.NoSort
         )
+    )
 
-    fun tabSelectAction(position: Int) {
-        shouldScroll = true
-        tabIndex = position
-        setLoading()
-        setList()
 
-    }
 
     fun btnFilterAction() {
         val dialogModels = arrayListOf<DialogModel>()
-        if (tabIndex == 0){
+        if (tabIndex == 0) {
             dialogModels.addAll(followerFilterDialogList())
-            dialogModels.first { it.option.javaClass.name == followerFilter.javaClass.name }.isSelected = true
-        }else{
+            dialogModels.first { it.option.javaClass.name == followerFilter.javaClass.name }.isSelected =
+                true
+        } else {
             dialogModels.addAll(followingFilterDialogList())
-            dialogModels.first { it.option.javaClass.name == followingFilter.javaClass.name }.isSelected = true
+            dialogModels.first { it.option.javaClass.name == followingFilter.javaClass.name }.isSelected =
+                true
         }
-            showFilterDialog.value = Pair(app.getString(R.string.filter),dialogModels)
+        showFilterDialog.value = Pair(app.getString(R.string.filter), dialogModels)
     }
 
-    fun itemListOptionAction(pos:Int,user:User){
+    fun itemListOptionAction(pos: Int, user: User) {
         lastSelectedUserIndex = pos
-        showOptionDialog.value = Pair(user.username,itemOptionDialogList)
+        showOptionDialog.value = Pair(user.username, itemOptionDialogList)
     }
 
 
     fun popUpMenuAction(itemId: Int?) {
         adapterList.value ?: return
         val currentList = adapterList.value!!.cloned()
-        when(itemId){
+        when (itemId) {
             R.id.select_all -> {
-             if (tabIndex == 0){
-                 currentList.forEach {
-                     it.isSelected = true
-                 }
+                if (tabIndex == 0) {
+                    currentList.forEach {
+                        it.isSelected = true
+                    }
 
-                 followerSelectionCount = currentList.size
-                 updateMainList(currentList,followerList)
-                 selectionCount.value = followerSelectionCount
-                 adapterList.value = sort(followerSort,filter(currentList,followerFilter))
-             }else{
-                 currentList.forEach {
-                     it.isSelected = true
-                 }
-                 followingSelectionCount = currentList.size
-                 updateMainList(currentList,followingList)
-                 selectionCount.value = followingSelectionCount
-                adapterList.value = sort(followingSort,filter(currentList,followingFilter))
-             }
+                    followerSelectionCount = currentList.size
+                    updateMainList(currentList, followerList)
+                    selectionCount.value = followerSelectionCount
+                    adapterList.value = sort(followerSort, filter(currentList, followerFilter))
+                } else {
+                    currentList.forEach {
+                        it.isSelected = true
+                    }
+                    followingSelectionCount = currentList.size
+                    updateMainList(currentList, followingList)
+                    selectionCount.value = followingSelectionCount
+                    adapterList.value = sort(followingSort, filter(currentList, followingFilter))
+                }
             }
-           R.id.select_none -> {
-               if (tabIndex == 0){
-                   followerList.forEach {
-                       it.isSelected = false
-                   }
-                   followerSelectionCount = 0
-                   selectionCount.value = followerSelectionCount
-                   adapterList.value = sort(followerSort,filter(followerList,followerFilter))
-                   isFollowerSelectionMode = false
-               }else{
-                   followingList.forEach {
-                       it.isSelected = false
-                   }
-                   followingSelectionCount = 0
-                   selectionCount.value = followingSelectionCount
-                   adapterList.value = sort(followingSort,filter(followingList,followingFilter))
-                   isFollowingSelectionMode = false
-               }
+            R.id.select_none -> {
+                if (tabIndex == 0) {
+                    followerList.forEach {
+                        it.isSelected = false
+                    }
+                    followerSelectionCount = 0
+                    selectionCount.value = followerSelectionCount
+                    adapterList.value = sort(followerSort, filter(followerList, followerFilter))
+                    isFollowerSelectionMode = false
+                } else {
+                    followingList.forEach {
+                        it.isSelected = false
+                    }
+                    followingSelectionCount = 0
+                    selectionCount.value = followingSelectionCount
+                    adapterList.value = sort(followingSort, filter(followingList, followingFilter))
+                    isFollowingSelectionMode = false
+                }
 
-           }
-           R.id.invert_selection -> {
-               if (tabIndex == 0){
-                   followerSelectionCount = 0
-                   followerList.forEach {
-                       it.isSelected = it.isSelected.not()
-                       if (it.isSelected){
-                           followerSelectionCount ++
-                       }
-                   }
-                   selectionCount.value = followerSelectionCount
+            }
+            R.id.invert_selection -> {
+                if (tabIndex == 0) {
+                    followerSelectionCount = 0
+                    followerList.forEach {
+                        it.isSelected = it.isSelected.not()
+                        if (it.isSelected) {
+                            followerSelectionCount++
+                        }
+                    }
+                    selectionCount.value = followerSelectionCount
 
-                   adapterList.value = sort(followerSort,filter(followerList,followerFilter))
-               }else{
-                   followingSelectionCount = 0
-                   followingList.forEach {
-                       it.isSelected = it.isSelected.not()
-                       if (it.isSelected){
-                           followingSelectionCount ++
-                       }
-                   }
+                    adapterList.value = sort(followerSort, filter(followerList, followerFilter))
+                } else {
+                    followingSelectionCount = 0
+                    followingList.forEach {
+                        it.isSelected = it.isSelected.not()
+                        if (it.isSelected) {
+                            followingSelectionCount++
+                        }
+                    }
 
-                   selectionCount.value = followerSelectionCount
-                   adapterList.value = sort(followingSort,filter(followingList,followingFilter))
-               }
+                    selectionCount.value = followerSelectionCount
+                    adapterList.value = sort(followingSort, filter(followingList, followingFilter))
+                }
 
-           }
-           R.id.interval_selection -> {
-               adapterList.value?.let { users ->
-                   if (tabIndex == 0){
-                       intervalSelect(users.cloned())?.let {
-                           updateMainList(it,followerList)
-                           adapterList.value = it
-                       }
-                   }else{
-                       intervalSelect(users.cloned())?.let {
-                           updateMainList(it,followingList)
-                           adapterList.value = it
-                       }
-               }
+            }
+            R.id.interval_selection -> {
+                adapterList.value?.let { users ->
+                    if (tabIndex == 0) {
+                        intervalSelect(users.cloned())?.let {
+                            updateMainList(it, followerList)
+                            adapterList.value = it
+                        }
+                    } else {
+                        intervalSelect(users.cloned())?.let {
+                            updateMainList(it, followingList)
+                            adapterList.value = it
+                        }
+                    }
 
 
-
-               }
-           }
+                }
+            }
         }
     }
 
-    private fun updateMainList(users:ArrayList<User>, listForUpdate:ArrayList<User>){
+    private fun updateMainList(users: ArrayList<User>, listForUpdate: ArrayList<User>) {
         users.forEach { user ->
-            listForUpdate.forEach{
-                if (it.pk == user.pk){
+            listForUpdate.forEach {
+                if (it.pk == user.pk) {
                     it.isSelected = user.isSelected
                 }
             }
         }
     }
 
-    private fun setSelectionCountForInterval(firstIndex:Int,secondIndex:Int){
-        if (tabIndex == 0){
+    private fun setSelectionCountForInterval(firstIndex: Int, secondIndex: Int) {
+        if (tabIndex == 0) {
             followerSelectionCount = secondIndex - firstIndex + 1
             selectionCount.value = followerSelectionCount
-        }else{
+        } else {
             followingSelectionCount = secondIndex - firstIndex + 1
             selectionCount.value = followingSelectionCount
         }
     }
 
-    private fun intervalSelect(list:ArrayList<User>):ArrayList<User>?{
-       var shouldUpdateFirstIndex = true
-       var firstIndex = 0
-       var secondIndex = 0
-       list.forEach {
-           if (it.isSelected){
-               if (shouldUpdateFirstIndex){
-                   firstIndex = list.indexOf(it)
-                   shouldUpdateFirstIndex = false
-               }else{
-                   secondIndex = list.indexOf(it)
-               }
-           }
-       }
+    private fun intervalSelect(list: ArrayList<User>): ArrayList<User>? {
+        var shouldUpdateFirstIndex = true
+        var firstIndex = 0
+        var secondIndex = 0
+        list.forEach {
+            if (it.isSelected) {
+                if (shouldUpdateFirstIndex) {
+                    firstIndex = list.indexOf(it)
+                    shouldUpdateFirstIndex = false
+                } else {
+                    secondIndex = list.indexOf(it)
+                }
+            }
+        }
 
-       setSelectionCountForInterval(firstIndex,secondIndex)
+        setSelectionCountForInterval(firstIndex, secondIndex)
 
-       for ( index in firstIndex .. secondIndex){
-           list[index].isSelected = true
-       }
-       return if (firstIndex != secondIndex){
-           list
-       }else{
-           null
-       }
-   }
+        for (index in firstIndex..secondIndex) {
+            list[index].isSelected = true
+        }
+        return if (firstIndex != secondIndex) {
+            list
+        } else {
+            null
+        }
+    }
 
-    fun search(query:String) {
+    fun search(query: String) {
         //shouldSearchAgain = true
         searchQuery = query
-         job?.cancel()
-         job = viewModelScope.launch {
-             delay(SEARCH_INTERVAL)
-             if (tabIndex == 0){
-                 if (query.isEmpty()){
-                     followerFilter = DialogModel.Options.NoFilter
-                     adapterList.value = sort(followerSort,filter(followerList,followerFilter))
-                     shouldScroll = true
-                     return@launch
-                 }
-                 adapterList.value = sort(followerSort,filter(followerList,DialogModel.Options.Search))
-             }else{
-                 if (query.isEmpty()) {
-                     followingFilter = DialogModel.Options.NoFilter
-                     adapterList.value = sort(followingSort,filter(followingList,followingFilter))
-                     shouldScroll = true
-                     return@launch
-                 }
-                 adapterList.value = sort(followingSort,filter(followingList,DialogModel.Options.Search))
-             }
+        job?.cancel()
+        job = viewModelScope.launch {
+            delay(SEARCH_INTERVAL)
+            if (tabIndex == 0) {
+                if (query.isEmpty()) {
+                    adapterList.value = sort(followerSort, filter(followerList,followerFilter))
+                    shouldScroll = true
+                    return@launch
+                }
+                adapterList.value =
+                    sort(followerSort, filter(followerList,followerFilter))
+            } else {
+                if (query.isEmpty()) {
+                    adapterList.value = sort(followingSort, filter(followingList, followingFilter))
+                    shouldScroll = true
+                    return@launch
+                }
+                adapterList.value =
+                    sort(followingSort, filter(followingList,followingFilter))
+            }
 
-         }
-     shouldSearchAgain = false
+        }
+        shouldSearchAgain = false
 
     }
 
     fun btnSortClick() {
         val sortList = sortList()
-        if (tabIndex == 0){
-            sortList.first { it.option.javaClass.name == followerSort.javaClass.name }.isSelected = true
-            showSortDialog.value = Pair(app.getString(R.string.sort),sortList)
-        }else{
-            sortList.first { it.option.javaClass.name == followingSort.javaClass.name }.isSelected = true
-            showSortDialog.value = Pair(app.getString(R.string.sort),sortList)
+        if (tabIndex == 0) {
+            sortList.first { it.option.javaClass.name == followerSort.javaClass.name }.isSelected =
+                true
+            showSortDialog.value = Pair(app.getString(R.string.sort), sortList)
+        } else {
+            sortList.first { it.option.javaClass.name == followingSort.javaClass.name }.isSelected =
+                true
+            showSortDialog.value = Pair(app.getString(R.string.sort), sortList)
 
         }
     }
 
-    private  fun filter(list : ArrayList<User>, filter : DialogModel.Options) : ArrayList<User>{
+    private fun filter(list: ArrayList<User>, filter: DialogModel.Options): ArrayList<User> {
 
-            if (tabIndex == 0) followerFilter = filter else followingFilter = filter
+        if (tabIndex == FOLLOWER_TAB_INDEX) followerFilter = filter else followingFilter = filter
 
 
-
-        when(filter){
+        val filteredList:ArrayList<User> = when (filter) {
             is DialogModel.Options.Status -> {
-                return if (filter.isPrivate){
+                 if (filter.isPrivate){
                     list.filter { it.is_private }.cloned()
                 }else{
 
@@ -547,33 +731,34 @@ class FollowViewModel @Inject constructor(
             }
 
             is DialogModel.Options.Avatar -> {
-                return if(filter.hasAvatar){
-                    list.filter { it.has_anonymous_profile_picture.not() }.cloned()
-                }else{
-                    list.filter { it.has_anonymous_profile_picture }.cloned()
+                 if (filter.hasAvatar) {
+                      list.filter { it.has_anonymous_profile_picture.not() }.cloned()
+
+                } else {
+                     list.filter { it.has_anonymous_profile_picture }.cloned()
                 }
             }
 
             is DialogModel.Options.Verify -> {
-                return if (filter.isVerify){
-                    list.filter { it.is_verified }.cloned()
-                }else{
-                    list.filter { it.is_verified.not() }.cloned()
+                 if (filter.isVerify) {
+                     list.filter { it.is_verified }.cloned()
+                } else {
+                     list.filter { it.is_verified.not() }.cloned()
                 }
             }
 
             is DialogModel.Options.Select -> {
-                return if (filter.isSelected){
-                    list.filter { it.isSelected }.cloned()
-                }else{
-                    list.filter { it.isSelected.not() }.cloned()
+                 if (filter.isSelected) {
+                     list.filter { it.isSelected }.cloned()
+                } else {
+                     list.filter { it.isSelected.not() }.cloned()
                 }
             }
 
             is DialogModel.Options.FollowBack -> {
                 val followBackList = ArrayList<User>()
-                if (tabIndex == 0){
-                    return if (filter.isFollowBack){
+                if (tabIndex == 0) {
+                     if (filter.isFollowBack) {
                         followerList.forEach { user ->
                             followBackList.addAll(followingList.filter { it.pk == user.pk })
                         }
@@ -587,7 +772,7 @@ class FollowViewModel @Inject constructor(
                     }
 
                 }else{
-                    return if (filter.isFollowBack){
+                     if (filter.isFollowBack){
                         followingList.forEach { user ->
                             followBackList.addAll(followerList.filter { it.pk == user.pk })
                         }
@@ -597,7 +782,6 @@ class FollowViewModel @Inject constructor(
                         followerList.forEach {user->
                             followBackList.removeAll { it.pk == user.pk }
                         }
-
                         followBackList
                     }
 
@@ -605,23 +789,26 @@ class FollowViewModel @Inject constructor(
 
             }
 
-            is DialogModel.Options.Search -> {
-             return  list.filter { it.username.contains(searchQuery) }.cloned()
-            }
-
-            else -> return list.cloned()
-
+            else -> list.cloned()
         }
+        return searchedList(filteredList)
     }
 
-    private fun sort(sort:DialogModel.Options,users:ArrayList<User>):ArrayList<User>{
+    private fun searchedList(list:ArrayList<User>) =
+        if (searchQuery.isNotEmpty()) list.filter { it.username.contains(searchQuery) }.cloned() else list
 
-        when(sort){
+
+
+
+    private fun sort(sort: DialogModel.Options, users: ArrayList<User>): ArrayList<User> {
+
+        when (sort) {
             is DialogModel.Options.ByUsername -> {
-                return if (sort.state){
+                return if (sort.state) {
                     users.sortBy { it.username }
+
                     users
-                }else{
+                } else {
                     users.sortBy { it.username }
                     users.reverse()
                     users
@@ -629,30 +816,30 @@ class FollowViewModel @Inject constructor(
 
             }
             is DialogModel.Options.ByCondition -> {
-                return if (sort.isFirstPublic){
-                    users.sortBy {it.is_private.not()}
+                return if (sort.isFirstPublic) {
+                    users.sortBy { it.is_private.not() }
                     users
-                }else{
+                } else {
                     users.sortBy { it.is_private }
                     users
                 }
 
             }
             is DialogModel.Options.ByAvatar -> {
-                return if (sort.hasFirstAvatar){
+                return if (sort.hasFirstAvatar) {
                     users.sortBy { it.has_anonymous_profile_picture }
                     return users
-                }else{
+                } else {
                     users.sortBy { it.has_anonymous_profile_picture.not() }
                     users
                 }
 
             }
             is DialogModel.Options.BySelection -> {
-                return if (sort.isFirstSelected){
-                    users.sortBy {  it.isSelected.not()}
+                return if (sort.isFirstSelected) {
+                    users.sortBy { it.isSelected.not() }
                     users
-                }else{
+                } else {
                     users.sortBy { it.isSelected }
                     users
                 }
@@ -673,10 +860,10 @@ class FollowViewModel @Inject constructor(
         job = null
     }
 
-    sealed class PagingState{
-        object PauseState:PagingState()
+    sealed class PagingState {
+        object PauseState : PagingState()
         object AutoState:PagingState()
-        object PlayState:PagingState()
+        object PlayState : PagingState()
     }
 
-    }
+}
