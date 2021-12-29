@@ -157,6 +157,7 @@ private fun setOptionState(option:DialogModel.Options){
             dialogAdapter.submitList(dialogList)
         }
         binding.dialogRv.adapter = dialogAdapter
+        binding.dialogRv.itemAnimator?.changeDuration = 0
     }
 
 

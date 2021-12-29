@@ -47,6 +47,7 @@ class BottomSheet(private val pair: Pair<String,List<ListDialogModel>>, private 
         binding.rvDialogList.adapter = ListDialogAdapter(pair.second){
             onOptionSelect(it.option)
         }
+        binding.rvDialogList.itemAnimator?.changeDuration = 0
     }
 
     override fun onDestroyView() {

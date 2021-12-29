@@ -33,10 +33,6 @@ import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.ui.dialog.BottomSheet
 import com.example.instacleaner.ui.dialog.ListDialog
 import com.example.instacleaner.utils.translateNumber
-import kotlin.system.measureTimeMillis
-import kotlin.time.ExperimentalTime
-import kotlin.time.TimedValue
-import kotlin.time.measureTimedValue
 
 
 @SuppressLint("RestrictedApi")
@@ -110,23 +106,12 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
     private fun subscribeToObservers(){
 
         viewModel.adapterList.observe(viewLifecycleOwner,{
-
-            if (it.isEmpty()) adapter.submitList(null)
-
             adapter.submitList(it.toList()) {
-
-                        if (viewModel.shouldScroll){
-                            binding.rvFollow.scrollToPosition(0)
-                            viewModel.shouldScroll = false
-                        }
-                    }
-
-
-
-
-
-
-
+                if (viewModel.shouldScroll){
+                       binding.rvFollow.scrollToPosition(0)
+                       viewModel.shouldScroll = false
+                   }
+               }
         })
 
         viewModel.showFilterDialog.observe(viewLifecycleOwner,{
@@ -200,6 +185,7 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
            viewModel.itemLongClickAction(pos,user)
         }
         binding.rvFollow.setHasFixedSize(true)
+        binding.rvFollow.itemAnimator?.changeDuration = 0
         binding.rvFollow.adapter = adapter
     }
 
@@ -233,14 +219,13 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         binding.followTab.getTabAt(0)?.view?.setChildTypeface(tp)
         binding.followTab.getTabAt(1)?.view?.setChildTypeface(tp)
         val currentTab = binding.followTab.getTabAt(viewModel.tabIndex)
+
         binding.followTab.selectTab(currentTab)
         binding.followTab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 log("tabSelect ${tab?.position}")
                 tab?.let {
-
                     viewModel.tabSelectAction(it.position)
-
                 }
 
             }
