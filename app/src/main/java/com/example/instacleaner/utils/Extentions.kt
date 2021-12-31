@@ -23,7 +23,10 @@ fun<T> handleResponse( response: Response<T>):Resource<T> {
         }
 
     }
-    return Resource.Error("Something went wrong")
+    if (response.code() == 400){
+        return Resource.Error("Bad request")
+    }
+    return Resource.Error(response.toString())
 }
 
 

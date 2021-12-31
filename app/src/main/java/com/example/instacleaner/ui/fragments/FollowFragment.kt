@@ -104,14 +104,18 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
 
 
     private fun subscribeToObservers(){
-
         viewModel.adapterList.observe(viewLifecycleOwner,{
-            adapter.submitList(it.toList()) {
-                if (viewModel.shouldScroll){
-                       binding.rvFollow.scrollToPosition(0)
-                       viewModel.shouldScroll = false
-                   }
-               }
+            if (it.isEmpty()){
+                adapter.submitList(null)
+            }else{
+                adapter.submitList(it.toList()) {
+                    if (viewModel.shouldScroll){
+                        binding.rvFollow.scrollToPosition(0)
+                        viewModel.shouldScroll = false
+                    }
+                }
+            }
+
         })
 
         viewModel.showFilterDialog.observe(viewLifecycleOwner,{

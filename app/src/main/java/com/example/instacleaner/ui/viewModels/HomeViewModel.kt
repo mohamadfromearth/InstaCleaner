@@ -31,6 +31,8 @@ class HomeViewModel @Inject constructor(
     val followerCount = ObservableField("-")
     val followingCount = ObservableField("-")
     val postCount = ObservableField("-")
+    val errorMessage = ObservableField("")
+    val errorMessageVisibility = ObservableInt(View.GONE)
 
     val navigateToLogin = SingleLiveEvent<Boolean>()
     val dialogShow = SingleLiveEvent<Boolean>()
@@ -38,7 +40,7 @@ class HomeViewModel @Inject constructor(
     val accounts = MutableLiveData<ArrayList<Account>>()
 
 
-    val errorMessage = SingleLiveEvent<String>()
+
 
     init {
 
@@ -58,32 +60,32 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getUserInfo(account: Account) = viewModelScope.launch {
-//        if (account == null) accountManager.refreshSharePreferenceValue()
-//        val acc = account ?: getAccount()
+
         loadingVisibility.set(View.VISIBLE)
+        errorMessageVisibility.set(View.GONE)
         when (val result = repository.getUserInfo(account)) {
             is Resource.Success -> {
                 result.data?.let {
+
                     loadingVisibility.set(View.GONE)
                     userInfo.set(it.user)
                     followerCount.set(it.user.follower_count.translateNumber())
                     followingCount.set(it.user.following_count.translateNumber())
                     postCount.set(it.user.media_count.translateNumber())
                     accounts.value = accountManager.updateAccount(it.user)
-
-
-//                        accountManager.saveAccount()
-//                        val listOfAccount = accountList.cloned()
-//                        listOfAccount.first { it.user.pk == accountManager.getCurrentAccountId() }.isSelected = true
-                        // accountList.first { it.user.pk == accountManager.getCurrentAccountId()}.isSelected = true
-//                        accounts.value = listOfAccount
-
                 }
 
             }
             is Resource.Error -> {
+                userInfo.set(User())
+                followerCount.set("-")
+                followingCount.set("-")
+                postCount.set("-")
                 loadingVisibility.set(View.GONE)
-                errorMessage.value = result.message!!
+                errorMessage.set(result.message)
+                errorMessageVisibility.set(View.VISIBLE)
+
+
             }
         }
     }

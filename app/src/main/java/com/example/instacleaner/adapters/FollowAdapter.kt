@@ -39,6 +39,15 @@ class FollowAdapter(private val onUserClick:(pos:Int,user:User) ->Unit,private v
 
     }
 
+    override fun getItemViewType(position: Int): Int {
+        if (currentList[position].pk == -1L){
+            return TYPE_LOADING
+        }else{
+            return super.getItemViewType(position)
+        }
+
+    }
+
 
     private class DiffCallback : DiffUtil.ItemCallback<User>() {
 
@@ -47,16 +56,24 @@ class FollowAdapter(private val onUserClick:(pos:Int,user:User) ->Unit,private v
 
 
         override fun areContentsTheSame(oldItem: User, newItem: User) =
-            oldItem.isSelected == newItem.isSelected
+            oldItem == newItem
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
-        return FollowViewHolder(
+        return if (viewType == TYPE_LOADING){
+          LoadingViewHolder(
+              DataBindingUtil.inflate(
+                  LayoutInflater.from(parent.context),
+                  R.layout.row_loading,
+                  parent,
+                  false
+              )
+          )
+        }else{
+            FollowViewHolder(
                 DataBindingUtil.inflate(
                     LayoutInflater.from(parent.context),
                     R.layout.row_follow,
@@ -64,6 +81,7 @@ class FollowAdapter(private val onUserClick:(pos:Int,user:User) ->Unit,private v
                     false
                 )
             )
+        }
 
 
 

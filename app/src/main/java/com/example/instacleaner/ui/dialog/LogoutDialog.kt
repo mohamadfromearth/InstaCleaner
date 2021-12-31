@@ -17,6 +17,7 @@ class LogoutDialog(private val onApprove:() -> Unit):DialogFragment() {
                 .setPositiveButton(R.string.yes_logout
                 ) { _, _ ->
                     onApprove()
+                    dismiss()
                 }
                 .setNegativeButton(R.string.no
                 ) { _, _ ->
