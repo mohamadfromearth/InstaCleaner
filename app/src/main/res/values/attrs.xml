@@ -24,6 +24,8 @@
 
 
 
+    <dimen name="toolbar_btn_corner">40dp</dimen>
+
     //sizes
     <dimen name="size_medium">40dp</dimen>
 

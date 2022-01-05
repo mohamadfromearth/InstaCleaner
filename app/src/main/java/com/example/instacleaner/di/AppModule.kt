@@ -1,6 +1,7 @@
 package com.example.instacleaner.di
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.SharedPreferences
@@ -62,6 +63,13 @@ object AppModule {
     @Provides
     fun providesAccountManager(preferenceManager: PreferenceManager): AccountManager =
         AccountManager(preferenceManager)
+
+
+
+    @Singleton
+    @Provides
+    fun providesDownloadManager(@ApplicationContext context: Context) =
+        context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
 
 

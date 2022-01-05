@@ -1,12 +1,16 @@
 package com.example.instacleaner.utils
 
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.example.instacleaner.App
 import com.example.instacleaner.BuildConfig
@@ -64,6 +68,18 @@ fun Any?.translateNumber():String{
 
 fun Fragment.showSnackBar(message:String){
     Snackbar.make(requireView(),message,Snackbar.LENGTH_SHORT).show()
+}
+
+
+
+fun DialogFragment.setDialogBackground(){
+    if (dialog != null && dialog?.window != null) {
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
+        val width = (resources.displayMetrics.widthPixels * 0.20).toInt()
+        val height = (resources.displayMetrics.heightPixels * 0.80).toInt()
+        dialog?.window?.setLayout(width, height)
+    }
 }
 
 

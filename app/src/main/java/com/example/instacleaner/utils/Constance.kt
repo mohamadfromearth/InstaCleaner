@@ -56,6 +56,9 @@ object Constance {
     const val SEARCH_INTERVAL:Long = 1000
     const val FOLLOWER_TAB_INDEX = 0
     const val FOLLOWING_TAB_INDEX = 1
+    const val CON_VALIDATE_COOKIE_INTERVAL = 1500L
+    const val CON_GET_FOLLOWERS_DELAY = 3000L
+    const val CON_INSTAGRAM_URL = "www.instagram.com/"
 
     //arguments
     const val ARG_COOKIE = "ARG_COOKIE"

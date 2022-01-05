@@ -269,6 +269,12 @@
     <string name="preparing">Preparing</string>
     <string name="invalid_link">Invalid Link</string>
     <string name="sort_list">Sort</string>
-    <string name="with_out_sort">بدون چیدمان</string>
+    <string name="with_out_sort">Deafult sort</string>
+    <string name ="pause_desc">   فالوئر ها گرفته نشه</string>
+    <string name="play_desc">فالوئر ها یک جا گرفته بشه</string>
+    <string name="auto_desc">فالوئرها اتوماتیک گرفته بشه</string>
+    <string name="auto">اتوماتیک</string>
+    <string name="play">شروع</string>
+    <string name="pause">توقف</string>
 
 </resources>

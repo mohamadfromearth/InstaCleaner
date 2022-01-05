@@ -16,6 +16,7 @@ import com.example.instacleaner.databinding.FragmentLoginBinding
 import com.example.instacleaner.ui.viewModels.LoginViewModel
 import com.example.instacleaner.utils.Constance.INSTAGRAM_URL
 import com.example.instacleaner.utils.Constance.PREF_USER_INDEX
+import com.example.instacleaner.utils.log
 import com.example.instacleaner.utils.showToast
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -74,6 +75,7 @@ class LoginFragment:Fragment(R.layout.fragment_login) {
         return object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                log(url.toString())
                 viewModel.validateCookie(url)
             }
         }

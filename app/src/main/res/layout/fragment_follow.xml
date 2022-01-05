@@ -24,7 +24,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:elevation="4dp"
+        android:elevation="@dimen/distance_too_small"
         >
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_sort"
@@ -39,7 +39,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:rippleColor="@color/md_white_1000" />
+            app:rippleColor="@color/md_white_1000"
+
+            />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_filter"
@@ -77,9 +79,12 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_paginate_state"
             style="@style/GeneralButton.ToolbarButton"
+            app:cornerRadius="@dimen/toolbar_btn_corner"
+            app:rippleColor="@color/white"
             android:layout_width="40dp"
             android:layout_height="40dp"
             app:iconSize="18dp"
+            android:visibility="@{viewModel.btnPaginateStateVisibility}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -183,6 +188,7 @@
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="4"
+            android:overScrollMode="never"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             tools:listitem="@layout/row_follow"
             />

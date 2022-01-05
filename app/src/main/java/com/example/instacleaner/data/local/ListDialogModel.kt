@@ -17,6 +17,9 @@ data class ListDialogModel(
         object DeleteFollowing:Options()
         object Block:Options()
         object DownloadProfile:Options()
+        object PlayState:Options()
+        object PauseState:Options()
+        object AutoState:Options()
 
     }
 

@@ -35,6 +35,7 @@
           android:layout_gravity="center"
           app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
           tools:listitem="@layout/row_list_dialog"
+          android:overScrollMode="never"
           />
     </LinearLayout>
 

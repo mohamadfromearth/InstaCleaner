@@ -270,4 +270,12 @@
     <string name="invalid_link">لینک نامعتبر</string>
     <string name="sort_list">چیدمان</string>
     <string name="with_out_sort">چیدمان پیش فرض</string>
+    <string name ="pause_desc">   فالوئر ها گرفته نشه</string>
+    <string name="play_desc">فالوئر ها یک جا گرفته بشه</string>
+    <string name="auto_desc">فالوئرها اتوماتیک گرفته بشه</string>
+    <string name="auto">اتوماتیک</string>
+    <string name="play">شروع</string>
+    <string name="pause">توقف</string>
+
+
 </resources>

@@ -27,6 +27,10 @@ class BottomSheet(private val pair: Pair<String,List<ListDialogModel>>, private 
         savedInstanceState: Bundle?
     ): View? {
         _binding = DataBindingUtil.inflate(layoutInflater, R.layout.dialog_bottom_sheet,container,false)
+        binding.title.apply {
+            if (pair.first.isEmpty()) visibility = View.GONE else binding.title.text = pair.first
+        }
+
         setDialogBackground()
         setUpRecyclerView()
 
@@ -46,12 +50,14 @@ class BottomSheet(private val pair: Pair<String,List<ListDialogModel>>, private 
     private fun setUpRecyclerView(){
         binding.rvDialogList.adapter = ListDialogAdapter(pair.second){
             onOptionSelect(it.option)
+            dismiss()
         }
         binding.rvDialogList.itemAnimator?.changeDuration = 0
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding = null
     }
 
 }

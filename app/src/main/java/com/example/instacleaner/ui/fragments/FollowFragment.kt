@@ -8,9 +8,10 @@ import android.text.TextWatcher
 import android.view.ContextThemeWrapper
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.PopupMenu
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -19,35 +20,28 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.instacleaner.R
 import com.example.instacleaner.adapters.FollowAdapter
 import com.example.instacleaner.databinding.FragmentFollowBinding
-import com.example.instacleaner.ui.dialog.TabDialog
 import com.example.instacleaner.ui.viewModels.FollowViewModel
 import com.example.instacleaner.utils.log
 import com.example.instacleaner.utils.setChildTypeface
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.appcompat.view.menu.MenuPopupHelper
-
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.navigation.fragment.findNavController
-import com.example.instacleaner.data.remote.response.User
-import com.example.instacleaner.ui.dialog.BottomSheet
-import com.example.instacleaner.ui.dialog.ListDialog
+import com.example.instacleaner.data.local.ListDialogModel
+import com.example.instacleaner.ui.dialog.*
 import com.example.instacleaner.utils.translateNumber
+import util.extension.snack
 
 
 @SuppressLint("RestrictedApi")
 @AndroidEntryPoint
 class FollowFragment : Fragment(R.layout.fragment_follow),
     MenuBuilder.Callback {
-
     private lateinit var adapter: FollowAdapter
-
     private val viewModel:FollowViewModel by viewModels()
-
-    private lateinit var  translateUp:Animation
-    private lateinit var  translateDown:Animation
     private var isSelectFirstTime = true
-
+    private lateinit var imageDialog: ImageDialog
     private var _binding: FragmentFollowBinding? = null
     private val binding: FragmentFollowBinding
         get() = _binding!!
@@ -60,12 +54,8 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         init()
         setUpTabView()
         subscribeToObservers()
-
-
     }
     private fun init(){
-        translateDown= AnimationUtils.loadAnimation(requireContext(),R.anim.translate_y_down)
-        translateUp= AnimationUtils.loadAnimation(requireContext(),R.anim.translate_y_up)
         binding.rvFollow.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -82,7 +72,7 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             viewModel.btnFilterAction()
         }
         binding.options.setOnClickListener {
-            showPopUpMenu(it)
+            showPopUpMenu(it,R.menu.follow_menu)
         }
         binding.edtSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int){}
@@ -97,12 +87,17 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             viewModel.btnSelectionAction()
         }
         binding.btnPaginateState.setOnClickListener {
-            viewModel.setPaginateState()
+            viewModel.btnPaginateStateAction()
         }
+        imageDialog = ImageDialog(
+            onArrowRightClick = {},
+            onArrowLeftClick = {},
+            onSaveImage = {},
+            onAnimationEnd = {
+                viewModel.setImageDialogData()
+            }
+        )
     }
-
-
-
     private fun subscribeToObservers(){
         viewModel.adapterList.observe(viewLifecycleOwner,{
             if (it.isEmpty()){
@@ -137,10 +132,21 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             }.show(parentFragmentManager,"")
         })
 
-        viewModel.showSelectBottomSheet.observe(viewLifecycleOwner,{
-            BottomSheet(it){
-
+        viewModel.showDescriptionDialog.observe(viewLifecycleOwner,{
+            DescriptionDialog(it){ option ->
+                 viewModel.setPaginateState(option)
             }.show(parentFragmentManager,"")
+        })
+
+        viewModel.showBottomSheet.observe(viewLifecycleOwner,{
+            BottomSheet(it){  options ->
+
+                viewModel.bottomSheetAction(options)
+            }.show(parentFragmentManager,"")
+        })
+
+        viewModel.showSnackBar.observe(viewLifecycleOwner,{
+            snack(requireView(),it)
         })
 
         viewModel.selectionCount.observe(viewLifecycleOwner,{
@@ -148,14 +154,11 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             if (it>0){
                 if (isSelectFirstTime){
                     binding.btnSelection.visibility = View.VISIBLE
-//                    binding.btnSelection.startAnimation(translateUp)
                     binding.btnSelection.animate().scaleX(1F).scaleY(1F).alpha(1F).setDuration(300).setStartDelay(0).start()
                     isSelectFirstTime = false
                 }
             }else{
                 if (!isSelectFirstTime){
-//                    binding.btnSelection.visibility = View.GONE
-//                    binding.btnSelection.startAnimation(translateDown)
                     binding.btnSelection.animate().scaleX(0.0F).scaleY(0.0F).alpha(0F).setDuration(300).setStartDelay(0).withEndAction {
                         binding.btnSelection.visibility = View.GONE
                     }.start()
@@ -175,11 +178,17 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             findNavController().navigate(FollowFragmentDirections.actionFollowFragment2ToProfileFragment())
         })
 
+        viewModel.showImageViewDialog.observe(viewLifecycleOwner,{
+
+          imageDialog.show(parentFragmentManager,"")
+        })
+
+        viewModel.imageDialogData.observe(viewLifecycleOwner,{
+            imageDialog.setData(it)
+        })
+
+
     }
-
-
-
-
     private fun setUpRecyclerView() {
         adapter = FollowAdapter({ pos,user ->
             viewModel.itemClickAction(pos,user)
@@ -189,23 +198,19 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
            viewModel.itemLongClickAction(pos,user)
         }
         binding.rvFollow.setHasFixedSize(true)
-        binding.rvFollow.itemAnimator?.changeDuration = 0
         binding.rvFollow.adapter = adapter
     }
-
-
-
     @SuppressLint("RestrictedApi")
-    private fun showPopUpMenu(v:View){
+    private fun showPopUpMenu(v:View,layoutId:Int){
         val wrapper = ContextThemeWrapper(requireContext(),R.style.AppTheme_TextAppearance_Popup)
         val itemWrapper = ContextThemeWrapper(requireContext(),R.style.BasePopupMenu)
         val popupMenu  = PopupMenu(wrapper,v)
-        popupMenu.inflate(R.menu.follow_menu)
+        popupMenu.inflate(layoutId)
 
         val menuBuilder = MenuBuilder(wrapper)
 
         menuBuilder.setCallback(this)
-        requireActivity().menuInflater.inflate(R.menu.follow_menu,menuBuilder)
+        requireActivity().menuInflater.inflate(layoutId,menuBuilder)
         val menuHelper = MenuPopupHelper(
             itemWrapper,
             menuBuilder ,v,false,0,R.style.BasePopupMenu
@@ -216,8 +221,6 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         menuHelper.show()
 
     }
-
-
     private fun setUpTabView() {
         val tp = ResourcesCompat.getFont(requireContext(), R.font.iran_sans_web_medium)
         binding.followTab.getTabAt(0)?.view?.setChildTypeface(tp)
@@ -245,14 +248,10 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         })
 
     }
-
-
-
     override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean {
         viewModel.popUpMenuAction(item.itemId)
        return false
     }
-
     override fun onMenuModeChange(menu: MenuBuilder) {
 
     }

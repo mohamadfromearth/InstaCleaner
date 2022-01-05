@@ -14,6 +14,7 @@ import com.example.instacleaner.R
 import com.example.instacleaner.adapters.ListDialogAdapter
 import com.example.instacleaner.data.local.ListDialogModel
 import com.example.instacleaner.databinding.DialogListBinding
+import com.example.instacleaner.utils.setDialogBackground
 
 
 class ListDialog (private val pair: Pair<String,List<ListDialogModel>>, private val onOptionSelect:(option:ListDialogModel.Options)->Unit) : DialogFragment() {
@@ -34,19 +35,12 @@ class ListDialog (private val pair: Pair<String,List<ListDialogModel>>, private 
         return binding.root
     }
 
-    private fun setDialogBackground(){
-        if (dialog != null && dialog?.window != null) {
-            dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
-            val width = (resources.displayMetrics.widthPixels * 0.20).toInt()
-            val height = (resources.displayMetrics.heightPixels * 0.80).toInt()
-            dialog?.window?.setLayout(width, height)
-        }
-    }
+
 
     private fun setUpRecyclerView(){
         binding.rvDialogList.adapter = ListDialogAdapter(pair.second){
             onOptionSelect(it.option)
+            dismiss()
         }
         binding.rvDialogList.itemAnimator?.changeDuration = 0
     }

@@ -1,0 +1,50 @@
+<layout>
+
+    <data>
+        <variable
+            name="description"
+            type="com.example.instacleaner.data.local.DescriptionDialogModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/row_description__btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/design_default_color_on_primary"
+            style="@style/GeneralButton.TextButton"
+            app:icon="@drawable/ic_account"
+            android:text="@{description.title}"
+            app:iconTint="@color/colorPrimaryDark"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/black"
+            app:cornerRadius="0dp"
+            app:iconGravity="end"
+            android:insetBottom="0dp"
+
+            />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@{description.description}"
+            android:layout_marginEnd="@dimen/distance_large"
+            android:fontFamily="@font/iran_sans_web_light"
+            />
+
+
+
+    </LinearLayout>
+
+
+
+
+</layout>

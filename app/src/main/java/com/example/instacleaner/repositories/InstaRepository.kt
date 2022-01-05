@@ -30,7 +30,11 @@ class InstaRepository @Inject constructor(private val instaApi:InstaApi) {
 
     suspend fun getFollower(account: Account,maxId:String):Resource<UserFollowers>{
         return try {
+
             val response = instaApi.getFollowers(getUserHeaders(account.cookie),account.user.pk,maxId)
+            response.body()?.users?.forEach {
+                it.init()
+            }
             handleResponse(response)
         }catch (t:Throwable){
             return Resource.Error(t.message!!)

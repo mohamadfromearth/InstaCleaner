@@ -4,10 +4,7 @@ import com.example.instacleaner.data.remote.response.userFollowers.UserFollowers
 import com.example.mohamadkh_instacleaner.data.remote.response.userFollowings.UserFollowings
 import com.example.mohamadkh_instacleaner.data.remote.response.userInfo.UserInfo
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.HeaderMap
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface InstaApi {
 
@@ -30,6 +27,13 @@ interface InstaApi {
         @Path("userId") userId:Long,
         @Query("max_id")maxId:String
     ): Response<UserFollowers>
+
+
+    @GET("friendships/create/{userId}/")
+    suspend fun follow(
+        @HeaderMap map:Map<String,String>,
+        @Path("userId") userId:Long,
+        )
 
 
 

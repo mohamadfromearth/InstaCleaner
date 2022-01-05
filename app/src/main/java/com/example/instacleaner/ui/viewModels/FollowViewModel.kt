@@ -2,13 +2,17 @@ package com.example.instacleaner.ui.viewModels
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
 import android.view.View
 import androidx.databinding.ObservableInt
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instacleaner.App
 import com.example.instacleaner.R
+import com.example.instacleaner.data.local.DescriptionDialogModel
 import com.example.instacleaner.data.local.DialogModel
 import com.example.instacleaner.data.local.ListDialogModel
 
@@ -16,17 +20,15 @@ import com.example.instacleaner.data.local.dialogModel.Tab
 import com.example.instacleaner.data.remote.response.User
 import com.example.instacleaner.data.remote.response.User.Companion.cloned
 import com.example.instacleaner.repositories.InstaRepository
-import com.example.instacleaner.utils.AccountManager
+import com.example.instacleaner.utils.*
 import com.example.instacleaner.utils.Constance.FOLLOWER_TAB_INDEX
 import com.example.instacleaner.utils.Constance.FOLLOWING_TAB_INDEX
 import com.example.instacleaner.utils.Constance.SEARCH_INTERVAL
-import com.example.instacleaner.utils.Resource
-import com.example.instacleaner.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import util.extension.copyToClipboard
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,13 +44,13 @@ class FollowViewModel @Inject constructor(
     private var isRequesting = false
     private var followersLoadingVisibility = false
     private var followingLoadingVisibility = false
-    private var shouldSearchAgain = false
     private var isFollowerSelectionMode = false
     private var isFollowingSelectionMode = false
-    private var isGetFollowerLoopOn = true//del
     private var maxId = ""
     private var searchQuery = ""
     private var lastSelectedUserIndex = 0
+    private var imageDialogUserIndex = 0
+    private var currentListSize = 0
     private var currentAccount = accountManager.getCurrentAccount()
     private var currentList:ArrayList<User> = arrayListOf()
 
@@ -152,8 +154,8 @@ class FollowViewModel @Inject constructor(
         ),
         DialogModel(
             listOf(
-                Tab(app.getString(R.string.they_following_back)),
-                Tab(app.getString(R.string.they_not_following_back))
+                Tab(app.getString(R.string.i_following_back)),
+                Tab(app.getString(R.string.i_not_following_back))
             ), app.getString(R.string.by_followback), DialogModel.Options.FollowBack(false)
         ),
         DialogModel(
@@ -189,8 +191,8 @@ class FollowViewModel @Inject constructor(
         ),
         DialogModel(
             listOf(
-                Tab(app.getString(R.string.i_following_back)),
-                Tab(app.getString(R.string.i_not_following_back))
+                Tab(app.getString(R.string.they_following_back)),
+                Tab(app.getString(R.string.they_not_following_back))
             ), app.getString(R.string.by_followback), DialogModel.Options.FollowBack(false)
         ),
         DialogModel(
@@ -199,24 +201,36 @@ class FollowViewModel @Inject constructor(
             DialogModel.Options.NoFilter,true
         )
     )
+    private val paginateStateList = arrayListOf(
+            DescriptionDialogModel(app.getString(R.string.auto),app.getString(R.string.auto_desc),R.drawable.ic_auto,DescriptionDialogModel.Options.Auto),
+            DescriptionDialogModel(app.getString(R.string.pause),app.getString(R.string.pause_desc),R.drawable.ic_pause,DescriptionDialogModel.Options.Pause),
+            DescriptionDialogModel(app.getString(R.string.play),app.getString(R.string.play_desc),R.drawable.ic_play,DescriptionDialogModel.Options.Play),
+            )
 
 
-    private var pagingState: PagingState = PagingState.PauseState
+    private var pagingState: DescriptionDialogModel.Options = DescriptionDialogModel.Options.Auto
 
 
     val loadingVisibility = ObservableInt(View.GONE)
+    val btnPaginateStateVisibility = ObservableInt(View.VISIBLE)
     val adapterList = MutableLiveData<ArrayList<User>>()
     val showFilterDialog = SingleLiveEvent<Pair<String, ArrayList<DialogModel>>>()
     val showSortDialog = SingleLiveEvent<Pair<String, ArrayList<DialogModel>>>()
     val showOptionDialog = SingleLiveEvent<Pair<String, List<ListDialogModel>>>()
-    val showSelectBottomSheet = SingleLiveEvent<Pair<String, List<ListDialogModel>>>()
+    val showBottomSheet = SingleLiveEvent<Pair<String, List<ListDialogModel>>>()
+    val showImageViewDialog = SingleLiveEvent<Triple<User,Int,Int>>()
+    val updateImageViewDialog = SingleLiveEvent<Pair<Int,ArrayList<User>>>()
+    val showSnackBar = SingleLiveEvent<String>()
     val navToProfileFragment = SingleLiveEvent<Boolean>()
     val selectionCount = MutableLiveData<Int>()
     val btnPaginateSateIcon = MutableLiveData<Int>()
+    val showDescriptionDialog = SingleLiveEvent<List<DescriptionDialogModel>>()
+    val imageDialogData = MutableLiveData<User>()
+
 
 
     init {
-        btnPaginateSateIcon.value = R.drawable.ic_play
+        btnPaginateSateIcon.value = R.drawable.ic_auto
         getFollowers()
         getFollowings()
     }
@@ -265,6 +279,7 @@ class FollowViewModel @Inject constructor(
 
     fun itemLongClickAction(pos: Int, user: User) {
         lastSelectedUserIndex = pos
+        imageDialogUserIndex = pos
         when (tabIndex) {
             FOLLOWER_TAB_INDEX -> if (isFollowerSelectionMode.not() && user.pk != -1L) {
                 currentList.first { it.pk == user.pk }.apply {
@@ -289,26 +304,27 @@ class FollowViewModel @Inject constructor(
             } else return
         }
     }
-
     fun tabSelectAction(position: Int) {
         shouldScroll = true
         tabIndex = position
+        if (tabIndex == FOLLOWER_TAB_INDEX) btnPaginateStateVisibility.set(View.VISIBLE) else btnPaginateStateVisibility.set(View.GONE)
         setLoading()
         adapterList.value = arrayListOf()
         setList()
 
     }
-
     fun btnSelectionAction() {
         if (tabIndex == FOLLOWER_TAB_INDEX) {
 
-                showSelectBottomSheet.value = Pair("", followerSelectionDialogList)
+                showBottomSheet.value = Pair("", followerSelectionDialogList)
         } else {
 
-                showSelectBottomSheet.value = Pair("", followingSelectionDialogList)
+                showBottomSheet.value = Pair("", followingSelectionDialogList)
         }
     }
-
+    fun btnPaginateStateAction() {
+        showDescriptionDialog.value =  paginateStateList
+    }
     fun itemOptionAction(option: ListDialogModel.Options) {
         val user = adapterList.value!![lastSelectedUserIndex]
         when (option) {
@@ -325,64 +341,132 @@ class FollowViewModel @Inject constructor(
             else -> Unit
         }
     }
+    fun btnFilterAction() {
+        showFilterDialog.value = Pair(app.getString(R.string.filter), if (tabIndex == FOLLOWER_TAB_INDEX) followerFilterOptionList else followingFilterOptionList)
+    }
+    fun itemListOptionAction(pos: Int, user: User) {
+        lastSelectedUserIndex = pos
+        imageDialogUserIndex = pos
+        //showOptionDialog.value = Pair(user.username, itemOptionDialogList)
+        showBottomSheet.value = Pair(user.username,itemOptionDialogList)
+    }
+    fun bottomSheetAction(option:ListDialogModel.Options) {
+        val user = currentList[lastSelectedUserIndex]
+        when(option){
+            ListDialogModel.Options.CopyLink ->{
+              copyToClipboard(Constance.CON_INSTAGRAM_URL + user.username)
+                showSnackBar.value = app.getString(R.string.copied_to_clipboard)
+            }
+            ListDialogModel.Options.CopyUsername ->{
+                copyToClipboard(user.username)
+                showSnackBar.value = app.getString(R.string.copied_to_clipboard)
+            }
+            ListDialogModel.Options.DeleteFollower ->{
+
+            }
+            ListDialogModel.Options.DeleteFollowing ->{
+
+            }
+            ListDialogModel.Options.DownloadProfile ->{
+
+            }
+            ListDialogModel.Options.FollowUser ->{
+
+            }
+            ListDialogModel.Options.GoToInstagram ->{
+                app.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constance.CON_INSTAGRAM_URL + user.username)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            ListDialogModel.Options.PauseState ->{
+
+            }
+            ListDialogModel.Options.PlayState ->{
+
+            }
+            ListDialogModel.Options.ShowImage ->{
+             showImageViewDialog.value = Triple(currentList[imageDialogUserIndex],currentList.size,imageDialogUserIndex)
+            }
+            ListDialogModel.Options.ShowProfile ->{
+             navToProfileFragment.value = true
+            }
+        }
+
+    }
+    fun popUpMenuAction(itemId: Int?) {
+        adapterList.value ?: return
+
+        when (itemId) {
+            R.id.select_all -> {
+                currentList.forEach {
+                    it.isSelected = true
+                }
+                updateMainList(currentList)
+                setList()
+            }
+            R.id.select_none -> {
+                currentList.forEach {
+                    it.isSelected = false
+                }
+                updateMainList(currentList)
+                setList()
+
+
+            }
+            R.id.invert_selection -> {
+                currentList.forEach {
+                    it.isSelected = it.isSelected.not()
+                }
+                updateMainList(currentList)
+                setList()
+
+
+            }
+            R.id.interval_selection -> {
+                val firstSelectedIndex = currentList.indexOfFirst { it.isSelected }
+                val lastSelectedIndex = currentList.indexOfLast { it.isSelected }
+                for (index in firstSelectedIndex .. lastSelectedIndex){
+                    currentList[index].isSelected = true
+                }
+                updateMainList(currentList)
+                setList()
+
+
+            }
+        }
+    }
 
 
     fun paginate() {
         when (pagingState) {
-            PagingState.AutoState -> {
+            DescriptionDialogModel.Options.Auto -> {
                 if (tabIndex == FOLLOWER_TAB_INDEX && isRequesting.not() && maxId.isNotEmpty() ){
                     getFollowers(true)
                 }
             }
-            PagingState.PauseState -> {
-                if (tabIndex == FOLLOWER_TAB_INDEX && isRequesting.not() && maxId.isNotEmpty()) {
-                   // followerSort = DialogModel.Options.NoSort
-
-                }
-            }
-            PagingState.PlayState -> Unit
+            DescriptionDialogModel.Options.Pause -> Unit
+            DescriptionDialogModel.Options.Play -> Unit
         }
     }
 
 
 
-
-    fun setPaginateState() {
-        pagingState = when (pagingState) {
-           PagingState.AutoState -> {
-               btnPaginateSateIcon.value = R.drawable.ic_pause
-               if (maxId.isNotEmpty()){
-                   getFollowers()
-               }
-               PagingState.PlayState
-           }
-            PagingState.PlayState -> {
-                btnPaginateSateIcon.value = R.drawable.ic_play
-                isGetFollowerLoopOn = false
-                PagingState.PauseState
-            }
-            PagingState.PauseState -> {
-                btnPaginateSateIcon.value = R.drawable.ic_auto
-                isGetFollowerLoopOn = true
-                //getFollowersLoop()
-                PagingState.AutoState
-            }
-
-        }
+    fun setImageDialogData(){
+        imageDialogData.value = currentList[lastSelectedUserIndex]
     }
+
+
+
 
     //mod
     private fun getFollowers(isPaging:Boolean = false)  {
         viewModelScope.launch {
             isRequesting = true
-            if (isPaging){
-                currentList.add(User(-1L))
-                adapterList.value = currentList
-                currentList.removeAll { it.pk == -1L }
-            }else{
+            if (isPaging.not()){
+                followersLoadingVisibility = true
                 setLoading()
             }
-
+            if (pagingState is DescriptionDialogModel.Options.Play){
+                delay(Constance.CON_GET_FOLLOWERS_DELAY)
+            }
             when (val result = repository.getFollower(accountManager.getCurrentAccount(), maxId)) {
                 is Resource.Success -> {
                     followersLoadingVisibility = false
@@ -391,7 +475,7 @@ class FollowViewModel @Inject constructor(
                     setLoading()
                     setList()
                     isRequesting = false
-                    if (maxId.isNotEmpty() && pagingState is  PagingState.PlayState){
+                    if (maxId.isNotEmpty() && pagingState is  DescriptionDialogModel.Options.Play){
                         getFollowers()
                     }
 
@@ -407,7 +491,7 @@ class FollowViewModel @Inject constructor(
 
 
     private fun getFollowings() = viewModelScope.launch {
-
+        followingLoadingVisibility = true
         setLoading()
         when (val result = repository.getFollowing(accountManager.getCurrentAccount())) {
             is Resource.Success -> {
@@ -471,6 +555,25 @@ class FollowViewModel @Inject constructor(
         setList()
     }
 
+   fun setPaginateState(options: DescriptionDialogModel.Options){
+       pagingState = options
+           when(options){
+          is DescriptionDialogModel.Options.Auto -> {
+               btnPaginateSateIcon.value = R.drawable.ic_auto
+           }
+          is DescriptionDialogModel.Options.Pause -> {
+              btnPaginateSateIcon.value = R.drawable.ic_pause
+           }
+          is DescriptionDialogModel.Options.Play ->{
+               btnPaginateSateIcon.value = R.drawable.ic_play
+              if (maxId.isNotEmpty()){
+                  getFollowers()
+              }
+
+           }
+       }
+   }
+
     //mod
      private fun setList() {
         if (tabIndex == FOLLOWER_TAB_INDEX){
@@ -478,11 +581,13 @@ class FollowViewModel @Inject constructor(
             val filterOption = followerFilterOptionList.first { it.isSelected }.option
             val finalList = sort(sortOption,filter(followerList,filterOption).cloned())
             currentList = finalList.cloned()
+            if (maxId.isNotEmpty() && pagingState is DescriptionDialogModel.Options.Auto ){
+                finalList.add(User(-1))
+            }
             adapterList.value = finalList
             val count = finalList.count { it.isSelected }
             selectionCount.value = count
             isFollowerSelectionMode = count != 0
-
         }
         else {
             val sortOption = followingSortOptionList.first { it.isSelected }.option
@@ -493,7 +598,6 @@ class FollowViewModel @Inject constructor(
             val count = finalList.count { it.isSelected }
             isFollowingSelectionMode= count != 0
             selectionCount.value = count
-
         }
     }
 
@@ -570,125 +674,10 @@ class FollowViewModel @Inject constructor(
     )
 
 
-    fun btnFilterAction() {
-        showFilterDialog.value = Pair(app.getString(R.string.filter), if (tabIndex == FOLLOWER_TAB_INDEX) followerFilterOptionList else followingFilterOptionList)
-    }
 
-    fun itemListOptionAction(pos: Int, user: User) {
-        lastSelectedUserIndex = pos
-        showOptionDialog.value = Pair(user.username, itemOptionDialogList)
-    }
-
-
-    //mod
-    fun popUpMenuAction(itemId: Int?) {
-        adapterList.value ?: return
-
-        when (itemId) {
-            R.id.select_all -> {
-                currentList.forEach {
-                    it.isSelected = true
-                }
-                updateMainList(currentList)
-                setList()
-
-             /*   if (tabIndex == 0) {
-                    currentList.forEach {
-                        it.isSelected = true
-                    }
-
-                    followerSelectionCount = currentList.size//
-                    updateMainList(currentList, followerList)
-                    selectionCount.value = followerSelectionCount//
-                    setList()//
-                } else {
-                    currentList.forEach {
-                        it.isSelected = true
-                    }
-                    followingSelectionCount = currentList.size
-                    updateMainList(currentList, followingList)
-                    selectionCount.value = followingSelectionCount
-                    setList()
-                }*/
-            }
-            R.id.select_none -> {
-             currentList.forEach {
-                 it.isSelected = false
-             }
-                updateMainList(currentList)
-                setList()
-
-            /*      if (tabIndex == 0) {
-                    followerList.forEach {
-                        it.isSelected = false
-                    }
-                    followerSelectionCount = 0
-                    selectionCount.value = followerSelectionCount
-                    adapterList.value = sort(followerSort, filter(followerList, followerFilter))
-                    isFollowerSelectionMode = false
-                } else {
-                    followingList.forEach {
-                        it.isSelected = false
-                    }
-                    followingSelectionCount = 0
-                    selectionCount.value = followingSelectionCount
-                    adapterList.value = sort(followingSort, filter(followingList, followingFilter))
-                    isFollowingSelectionMode = false
-                }*/
-            }
-            R.id.invert_selection -> {
-              currentList.forEach {
-                  it.isSelected = it.isSelected.not()
-              }
-               updateMainList(currentList)
-                setList()
-
-               /* if (tabIndex == 0) {
-                    followerSelectionCount = 0
-                    followerList.forEach {
-                        it.isSelected = it.isSelected.not()
-                        if (it.isSelected) {
-                            followerSelectionCount++
-                        }
-                    }
-                    selectionCount.value = followerSelectionCount
-
-                    adapterList.value = sort(followerSort, filter(followerList, followerFilter))
-                } else {
-                    followingSelectionCount = 0
-                    followingList.forEach {
-                        it.isSelected = it.isSelected.not()
-                        if (it.isSelected) {
-                            followingSelectionCount++
-                        }
-                    }
-
-                    selectionCount.value = followerSelectionCount
-                    adapterList.value = sort(followingSort, filter(followingList, followingFilter))
-                }*/
-            }
-            R.id.interval_selection -> {
-             val firstSelectedIndex = currentList.indexOfFirst { it.isSelected }
-             val lastSelectedIndex = currentList.indexOfLast { it.isSelected }
-             for (index in firstSelectedIndex .. lastSelectedIndex){
-                 currentList[index].isSelected = true
-             }
-            updateMainList(currentList)
-                setList()
-
-            /*    adapterList.value?.let { users ->
-                    intervalSelect(users.cloned())?.let {
-                        updateMainList(it,if (tabIndex == 0)  followerList else followingList)
-                        adapterList.value = it
-                    }
-                }*/
-            }
-        }
-    }
 
     //mod
     private  fun updateMainList(users: ArrayList<User>) {
-
         val currentIndexList = if (tabIndex == FOLLOWER_TAB_INDEX) followerList else followingList
         users.forEach { user ->
                 currentIndexList.first { it.pk == user.pk }.isSelected = user.isSelected
@@ -696,40 +685,6 @@ class FollowViewModel @Inject constructor(
     }
 
 
-
-    //mod
-    /*private fun intervalSelect(list: ArrayList<User>): ArrayList<User>? {
-        var shouldUpdateFirstIndex = true
-        var firstIndex = 0
-        var secondIndex = 0
-        list.forEach {
-            if (it.isSelected) {
-                if (shouldUpdateFirstIndex) {
-                    firstIndex = list.indexOf(it)
-                    shouldUpdateFirstIndex = false
-                } else {
-                    secondIndex = list.indexOf(it)
-                }
-            }
-        }
-
-//        if (tabIndex == 0) {
-//            followerSelectionCount = secondIndex - firstIndex + 1
-//            selectionCount.value = followerSelectionCount
-//        } else {
-//            followingSelectionCount = secondIndex - firstIndex + 1
-//            selectionCount.value = followingSelectionCount
-//        }
-
-        for (index in firstIndex..secondIndex) {
-            list[index].isSelected = true
-        }
-        return if (firstIndex != secondIndex) {
-            list
-        } else {
-            null
-        }
-    }*/
 
     //mod
     fun search(query: String) {
