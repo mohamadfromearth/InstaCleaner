@@ -28,6 +28,7 @@
             android:background="@drawable/shape_round_grey"
             android:fontFamily="@font/iran_sans_web_medium"
             android:text="12/132"
+            android:textColor="@color/white"
             android:paddingLeft="@dimen/distance_small"
             android:paddingEnd="@dimen/distance_small"
             android:paddingTop="@dimen/distance_too_small"
@@ -81,7 +82,9 @@
                     android:layout_marginBottom="@dimen/distance_small"
                     app:layout_constraintBottom_toTopOf="@+id/tv_save_image"
                     android:elevation="6dp"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="invisible"
+                    />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_follower_count"
@@ -93,6 +96,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/tv_save_image"
                     tools:layout_editor_absoluteY="240dp"
                     android:elevation="6dp"
+                    android:visibility="invisible"
                     />
 
 
@@ -102,7 +106,7 @@
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_image_dialog"
                     app:shapeAppearanceOverlay="@style/GeneralImageView.rounded"
-                    imageUrl="@{user.profile_pic_url}"
+                    imageUrl="@{user.hd_profile_pic_url_info == null ? `` : user.hd_profile_pic_url_info.url}"
                     android:layout_width="match_parent"
                     android:layout_height="260dp"
                     android:scaleType="centerCrop"

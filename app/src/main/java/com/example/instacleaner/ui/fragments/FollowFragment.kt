@@ -90,12 +90,16 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
             viewModel.btnPaginateStateAction()
         }
         imageDialog = ImageDialog(
-            onArrowRightClick = {},
-            onArrowLeftClick = {},
-            onSaveImage = {},
-            onAnimationEnd = {
-                viewModel.setImageDialogData()
-            }
+            onArrowRightClick = {
+            viewModel.arrowRightAction()
+            },
+            onArrowLeftClick = {
+            viewModel.arrowLeftAction()
+            },
+            onSaveImage = {
+             viewModel.downloadImageAction(it)
+            },
+
         )
     }
     private fun subscribeToObservers(){
@@ -179,12 +183,13 @@ class FollowFragment : Fragment(R.layout.fragment_follow),
         })
 
         viewModel.showImageViewDialog.observe(viewLifecycleOwner,{
+            imageDialog.initData(it.first,"${it.third + 1}/${it.second}")
+            imageDialog.show(parentFragmentManager,"")
 
-          imageDialog.show(parentFragmentManager,"")
         })
 
         viewModel.imageDialogData.observe(viewLifecycleOwner,{
-            imageDialog.setData(it)
+            imageDialog.setData(it.first,it.second,it.third)
         })
 
 

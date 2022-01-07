@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.instacleaner.R
 import com.example.instacleaner.data.remote.response.User
@@ -27,6 +28,7 @@ import com.example.instacleaner.databinding.DialogImageViewBinding
 import com.example.instacleaner.utils.log
 import com.example.instacleaner.utils.setDialogBackground
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import util.extension.getInternalDirectory
 import util.extension.shortenNumber
 import java.io.File
@@ -36,8 +38,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ImageDialog(private val onArrowRightClick:()->Unit,
                   private val onArrowLeftClick:()->Unit,
-                  private val onSaveImage:() -> Unit,
-                  private val onAnimationEnd:()->Unit,
+                  private val onSaveImage:(url:String) -> Unit,
+
 ):DialogFragment() {
     private var _binding:DialogImageViewBinding? = null
     private val binding:DialogImageViewBinding
@@ -54,6 +56,9 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private var writePermissionGranted = false
     private var isCaption = false
+    private lateinit var user:User
+    private var title = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,6 +66,8 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
     ): View? {
         _binding = DataBindingUtil.inflate(layoutInflater, R.layout.dialog_image_view,container,false)
         setDialogBackground()
+        binding.user = user
+        binding.tvImageViewerCount.text = title
 
         val slideOutLeft = AnimationUtils.loadAnimation(requireContext(),R.anim.anim_slide_out_left)
         val slideInRight = AnimationUtils.loadAnimation(requireContext(),R.anim.anim_slide_in_right)
@@ -99,6 +106,7 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
             }
             override fun onAnimationEnd(animation: Animation?) {
                 fadeInTvImageView()
+                binding.clImageDialog.startAnimation(slideInLeft)
             /*   fadeInTvImageView()
                 //if (currentUserPos == 0) binding.ivArrowLeft.isVisible = false
                 setData()
@@ -116,7 +124,7 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
             override fun onAnimationEnd(animation: Animation?) {
                 fadeOutTvImageViewerCount()
               //  setData()
-                onAnimationEnd()
+
             }
             override fun onAnimationRepeat(animation: Animation?) {
 
@@ -129,7 +137,7 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
             override fun onAnimationEnd(animation: Animation?) {
                 fadeOutTvImageViewerCount()
                // setData()
-                onAnimationEnd()
+
             }
             override fun onAnimationRepeat(animation: Animation?) {
 
@@ -143,11 +151,11 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
             override fun onAnimationEnd(animation: Animation?) {
                 binding.dialogImageLinear.clearAnimation()
                 binding.ivImageDialog.clearAnimation()
-                onAnimationEnd()
-                //setData()
-                onAnimationEnd()
                 binding.dialogImageLinear.visibility = if (isCaption) View.VISIBLE else View.INVISIBLE
                 binding.ivImageDialog.visibility = if (isCaption) View.INVISIBLE else View.VISIBLE
+                binding.tvFollowerCount.visibility = if (isCaption) View.VISIBLE else View.INVISIBLE
+                binding.tvFollowingCount.visibility = if (isCaption) View.VISIBLE else View.INVISIBLE
+                binding.ivToggle.setIconResource(if (isCaption) R.drawable.ic_image else R.drawable.ic_comment)
                 val view = if (isCaption)binding.dialogImageLinear else binding.ivImageDialog
                 view.startAnimation(animShow)
 
@@ -173,6 +181,7 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
         binding.ivArrowRight.setOnClickListener {
             binding.tvImageViewerCount.visibility = View.VISIBLE
             binding.clImageDialog.startAnimation(slideOutLeft)
+            binding.ivImageDialog.setImageResource(R.drawable.bg_primary_light)
             onArrowRightClick()
         }
         binding.ivArrowLeft.setOnClickListener {
@@ -184,44 +193,74 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
             updateOrRequestPermission()
             val text = binding.tvSaveImage.text.toString()
             if (writePermissionGranted && text != getString(R.string.image_saved) && text != getString(R.string.copy)){
-               onSaveImage()
+                user.hd_profile_pic_url_info?.let {
+                    onSaveImage(it.url)
+                }
+
             }
 
         }
         binding.ivToggle.setOnClickListener {
-            val view = if (isCaption) binding.dialogImageLinear else binding.ivImageDialog
+
             isCaption = isCaption.not()
+            val tvSaveText = if (user.isDownloaded) getString(R.string.image_saved) else getString(R.string.save_image)
+            val view = if (isCaption) {
+                binding.tvSaveImage.text = getString(R.string.copy)
+                binding.ivImageDialog
+            } else {
+                binding.tvSaveImage.text = tvSaveText
+                binding.dialogImageLinear
+            }
+
             view.startAnimation(animHide)
+        }
+        binding.clImageDialog.setOnClickListener {
+            fadeInTvImageView()
+            fadeOutTvImageViewerCount()
+
         }
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){ permissions ->
          writePermissionGranted = permissions[android.Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: writePermissionGranted
             if (writePermissionGranted){
-                onSaveImage()
+                user.hd_profile_pic_url_info?.let {
+                    onSaveImage(it.url)
+                }
+
             }
         }
         return binding.root
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    fun setData(user:User,){
+    fun setData(user:User,pos:Int,size:Int){
+        this.user = user
+        lifecycleScope.launchWhenStarted {
+            delay(150)
+            binding.user = user
+            binding.tvImageViewerCount.text = "${pos + 1} / $size"
+            user.follower_count?.let{
+                binding.tvFollowerCount.text = it.toString()
+            }
+            user.following_count?.let {
+                binding.tvFollowingCount.text = it.toString()
+            }
 
-        //binding.tvImageViewerCount.text = "${currentUserPos + 1} / ${pair.second.size}"
-        binding.user = user
-        if (user.isDownloaded){
-            binding.tvSaveImage.text = getString(R.string.image_saved)
-            binding.materialCardView.background = requireContext().getDrawable(R.drawable.bg_primary)
-        }else{
-             binding.tvSaveImage.text = getString(R.string.save_image)
-             binding.materialCardView.background = requireContext().getDrawable(R.drawable.bg_primary_light)
+            if (user.isDownloaded){
+                binding.tvSaveImage.text = getString(R.string.image_saved)
+                binding.materialCardView.background = requireContext().getDrawable(R.drawable.bg_primary)
+            }else{
+                binding.tvSaveImage.text = getString(R.string.save_image)
+                binding.materialCardView.background = requireContext().getDrawable(R.drawable.bg_primary_light)
+            }
+            if (isCaption){
+                binding.ivToggle.setIconResource(R.drawable.ic_image)
+                binding.tvSaveImage.text = getString(R.string.copy)
+
+            }else{
+                binding.ivToggle.setIconResource(R.drawable.ic_comment)
+            }
         }
-        if (isCaption){
-            binding.ivToggle.setIconResource(R.drawable.ic_image)
-            binding.tvSaveImage.text = getString(R.string.copy)
-            binding.tvFollowerCount.text = user.follower_count.toString()
-            binding.tvFollowingCount.text = user.following_count.toString()
-        }else{
-            binding.ivToggle.setIconResource(R.drawable.ic_comment)
-        }
+
    }
     private fun fadeOutTvImageViewerCount(){
         binding.tvImageViewerCount.animate().scaleX(0.0F).scaleY(0.0F).alpha(0F).setDuration(750).setStartDelay(500).withEndAction {
@@ -264,6 +303,10 @@ class ImageDialog(private val onArrowRightClick:()->Unit,
             permissionLauncher.launch(permissionsToRequest.toTypedArray())
         }
 
+    }
+    fun initData(user: User,title:String){
+        this.user = user
+        this.title = title
     }
 
 

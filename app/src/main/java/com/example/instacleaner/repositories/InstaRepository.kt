@@ -17,10 +17,10 @@ import kotlin.collections.HashMap
 
 class InstaRepository @Inject constructor(private val instaApi:InstaApi) {
 
-    suspend fun getUserInfo(account:Account): Resource<UserInfo> {
+    suspend fun getUserInfo(userId:Long,cookie:String): Resource<UserInfo> {
 
      return try {
-          val response = instaApi.getUserInfo(getUserHeaders(account.cookie),account.user.pk)
+          val response = instaApi.getUserInfo(getUserHeaders(cookie),userId)
           handleResponse(response)
       }catch (t:Throwable){
           return Resource.Error(t.message!!)

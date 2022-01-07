@@ -1,9 +1,9 @@
 package com.example.instacleaner.ui.viewModels
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Intent
+import android.app.DownloadManager
+import android.content.*
 import android.net.Uri
+import android.os.Environment
 import android.view.View
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.LifecycleOwner
@@ -29,6 +29,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import util.extension.copyToClipboard
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +37,8 @@ class FollowViewModel @Inject constructor(
     private val accountManager: AccountManager,
     private val repository: InstaRepository,
     private val app: App,
-    private val clipboardManager: ClipboardManager
+    private val clipboardManager: ClipboardManager,
+    private val downloadManager:DownloadManager
 ) : ViewModel() {
 
 
@@ -225,7 +227,7 @@ class FollowViewModel @Inject constructor(
     val selectionCount = MutableLiveData<Int>()
     val btnPaginateSateIcon = MutableLiveData<Int>()
     val showDescriptionDialog = SingleLiveEvent<List<DescriptionDialogModel>>()
-    val imageDialogData = MutableLiveData<User>()
+    val imageDialogData = SingleLiveEvent<Triple<User,Int,Int>>()
 
 
 
@@ -249,7 +251,8 @@ class FollowViewModel @Inject constructor(
     }
 
     fun itemClickAction(pos: Int, user: User) {
-
+       imageDialogUserIndex = pos
+       lastSelectedUserIndex = pos
       when(tabIndex){
           FOLLOWER_TAB_INDEX -> {
               if (isFollowerSelectionMode){
@@ -383,7 +386,11 @@ class FollowViewModel @Inject constructor(
 
             }
             ListDialogModel.Options.ShowImage ->{
-             showImageViewDialog.value = Triple(currentList[imageDialogUserIndex],currentList.size,imageDialogUserIndex)
+                val user = currentList[imageDialogUserIndex]
+                user.hd_profile_pic_url_info ?: getUserInfo(user.pk)
+
+
+             showImageViewDialog.value = Triple(user,currentList.size,imageDialogUserIndex)
             }
             ListDialogModel.Options.ShowProfile ->{
              navToProfileFragment.value = true
@@ -433,7 +440,44 @@ class FollowViewModel @Inject constructor(
             }
         }
     }
+    fun arrowRightAction() {
+        if (imageDialogUserIndex != currentList.size - 1) {
+            imageDialogUserIndex ++
+            val user =  currentList[imageDialogUserIndex]
+            setImageDialogData()
+            user.hd_profile_pic_url_info ?: getUserInfo(user.pk)
 
+        }
+    }
+    fun arrowLeftAction() {
+        if (imageDialogUserIndex > 0){
+            imageDialogUserIndex --
+            val user =  currentList[imageDialogUserIndex]
+            setImageDialogData()
+            user.hd_profile_pic_url_info ?: getUserInfo(user.pk)
+        }
+
+    }
+    fun downloadImageAction(url:String){
+        val userIndex = imageDialogUserIndex
+        val request = DownloadManager.Request(Uri.parse(url))
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+            .setDestinationInExternalPublicDir( Environment.DIRECTORY_PICTURES, File.separator+"profiles"+ File.separator + File.separator+currentList[userIndex].username )
+            .setAllowedOverMetered(true)
+        val downloadId = downloadManager.enqueue(request)
+        val broadCast = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID,-1)
+                if (id == downloadId) {
+                    currentList[imageDialogUserIndex].init()
+                    setImageDialogData()
+                }
+            }
+        }
+
+        app.registerReceiver(broadCast,IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
+    }
 
     fun paginate() {
         when (pagingState) {
@@ -449,8 +493,8 @@ class FollowViewModel @Inject constructor(
 
 
 
-    fun setImageDialogData(){
-        imageDialogData.value = currentList[lastSelectedUserIndex]
+    private fun setImageDialogData(){
+        imageDialogData.postValue(Triple(currentList[imageDialogUserIndex],imageDialogUserIndex,currentList.size))
     }
 
 
@@ -487,6 +531,26 @@ class FollowViewModel @Inject constructor(
             }
 
         }
+    }
+
+    private fun getUserInfo(userId:Long)  = viewModelScope.launch {
+       when(val result = repository.getUserInfo(userId,accountManager.getCurrentAccount().cookie)){
+           is Resource.Success ->{
+              result.data?.let { userInfo ->
+                  currentList.first { it.pk  == userInfo.user.pk }.apply {
+                      follower_count = userInfo.user.follower_count
+                      following_count = userInfo.user.following_count
+                      hd_profile_pic_url_info = userInfo.user.hd_profile_pic_url_info
+                      biography = userInfo.user.biography
+                  }
+                  setImageDialogData()
+
+              }
+           }
+           is Resource.Error -> {
+
+           }
+       }
     }
 
 
@@ -840,6 +904,9 @@ class FollowViewModel @Inject constructor(
         }
         job = null
     }
+
+
+
 
     sealed class PagingState {
         object PauseState : PagingState()

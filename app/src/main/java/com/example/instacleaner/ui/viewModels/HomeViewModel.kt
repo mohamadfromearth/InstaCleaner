@@ -63,7 +63,7 @@ class HomeViewModel @Inject constructor(
 
         loadingVisibility.set(View.VISIBLE)
         errorMessageVisibility.set(View.GONE)
-        when (val result = repository.getUserInfo(account)) {
+        when (val result = repository.getUserInfo(account.user.pk,account.cookie)) {
             is Resource.Success -> {
                 result.data?.let {
 
